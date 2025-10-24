@@ -3,9 +3,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from typing import List, Optional
 from db.session import get_db
-from db.models.post import Post
+from db.models.post import Post, PostMedia
 from db.models.user import User
-from api.dependencies import get_current_active_user
+from core.security import get_current_active_user
 from schemas.post import PostCreate, PostUpdate, PostResponse
 from services.post_service import PostService
 
@@ -21,19 +21,9 @@ async def get_posts(
     db: AsyncSession = Depends(get_db)
 ):
     """Get posts feed"""
-    # Query posts from database
     try:
-        # Get posts from database with pagination
-        query = select(Post).offset(skip).limit(limit).order_by(Post.created_at.desc())
-        
-        if user_id:
-            query = query.where(Post.user_id == user_id)
-        
-        if post_type:
-            query = query.where(Post.post_type == post_type)
-        
-        result = await db.execute(query)
-        posts = result.scalars().all()
+        post_service = PostService(db)
+        posts = await post_service.get_posts(skip, limit, user_id, post_type)
         
         # Convert to response format
         posts_data = []
@@ -44,13 +34,19 @@ async def get_posts(
             user = user_result.scalar_one_or_none()
             
             if user:
+                # Get media URLs
+                media_query = select(PostMedia).where(PostMedia.post_id == post.id)
+                media_result = await db.execute(media_query)
+                media_list = media_result.scalars().all()
+                media_urls = [media.media_url for media in media_list] if media_list else []
+                
                 posts_data.append({
                     "id": post.id,
                     "content": post.content,
                     "post_type": post.post_type,
-                    "media_urls": post.media_urls or [],
-                    "likes_count": post.likes_count or 0,
-                    "comments_count": post.comments_count or 0,
+                    "media_urls": media_urls,
+                    "likes_count": post.like_count or 0,
+                    "comments_count": post.comment_count or 0,
                     "created_at": post.created_at.isoformat() if post.created_at else None,
                     "user": {
                         "id": user.id,
@@ -72,6 +68,7 @@ async def get_posts(
         }
         
     except Exception as e:
+        print(f"Error getting posts: {str(e)}")
         # If no posts in database, return empty array
         return {
             "success": True,
@@ -95,10 +92,16 @@ async def create_post(
     """Create a new post"""
     try:
         post_service = PostService(db)
+        post_data = PostCreate(
+            content=content,
+            post_type=post_type,
+            visibility="public",
+            allow_comments=True,
+            allow_sharing=True
+        )
         post = await post_service.create_post(
             user_id=current_user.id,
-            content=content,
-            post_type=post_type
+            post_data=post_data
         )
         
         return {
@@ -112,6 +115,7 @@ async def create_post(
             }
         }
     except Exception as e:
+        print(f"Error creating post: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to create post: {str(e)}"
