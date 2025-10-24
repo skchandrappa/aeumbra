@@ -30,10 +30,13 @@ class ApiService {
         ? '/health' 
         : 'http://localhost:8000/health';
       
+      console.log('Checking backend health at:', healthUrl);
       const response = await axios.get(healthUrl, { timeout: 5000 });
+      console.log('Backend health check response:', response.status, response.data);
       return response.status < 500; // Consider 4xx as available but unauthorized
     } catch (error: any) {
       console.log('Backend check failed:', error.message);
+      console.log('Error details:', error);
       return false;
     }
   }
@@ -42,6 +45,8 @@ class ApiService {
   async request<T>(config: any): Promise<T> {
     const isBackendAvailable = await this.checkBackendAvailability();
     
+    console.log('Backend available:', isBackendAvailable, 'for request:', config.url);
+    
     if (!isBackendAvailable) {
       console.warn('Using mock API - Backend not available');
       localStorage.setItem('using_mock_api', 'true');
@@ -49,11 +54,14 @@ class ApiService {
     }
 
     try {
+      console.log('Making API request to:', config.url);
       const response = await api(config);
+      console.log('API request successful:', response.status);
       return response.data;
     } catch (error: any) {
       // If backend request fails, fallback to mock
       console.warn('Backend request failed, using mock data:', error.message);
+      console.log('Error details:', error);
       localStorage.setItem('using_mock_api', 'true');
       return this.getMockResponse<T>(config);
     }
