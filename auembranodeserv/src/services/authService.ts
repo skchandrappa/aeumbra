@@ -28,7 +28,7 @@ const authService: AuthService = {
   },
 
   async register(userData: RegisterData): Promise<TokenResponse> {
-    const response = await api.post<{success: boolean, data: TokenResponse}>('/auth/register', {
+    const response = await api.post<TokenResponse>('/auth/register', {
       email: userData.email,
       password: userData.password,
       user_type: userData.user_type,
@@ -38,10 +38,10 @@ const authService: AuthService = {
     });
     
     // Store tokens
-    localStorage.setItem('auth_token', response.data.data.access_token);
-    localStorage.setItem('refresh_token', response.data.data.refresh_token);
+    localStorage.setItem('auth_token', response.data.access_token);
+    localStorage.setItem('refresh_token', response.data.refresh_token);
     
-    return response.data.data;
+    return response.data;
   },
 
   async logout(): Promise<void> {
@@ -56,15 +56,15 @@ const authService: AuthService = {
   },
 
   async refreshToken(refreshToken: string): Promise<TokenResponse> {
-    const response = await api.post<{success: boolean, data: TokenResponse}>('/auth/refresh', {
+    const response = await api.post<TokenResponse>('/auth/refresh', {
       refresh_token: refreshToken,
     });
     
     // Update stored tokens
-    localStorage.setItem('auth_token', response.data.data.access_token);
-    localStorage.setItem('refresh_token', response.data.data.refresh_token);
+    localStorage.setItem('auth_token', response.data.access_token);
+    localStorage.setItem('refresh_token', response.data.refresh_token);
     
-    return response.data.data;
+    return response.data;
   },
 
   async getCurrentUser(): Promise<User> {
