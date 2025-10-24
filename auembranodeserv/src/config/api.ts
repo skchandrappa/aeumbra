@@ -1,6 +1,6 @@
 // API Configuration
 export const API_CONFIG = {
-  BASE_URL: process.env.REACT_APP_API_BASE_URL || 'https://aeumbra-backend.railway.app/api/v1',
+  BASE_URL: process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000/api/v1',
   TIMEOUT: 10000,
   RETRY_ATTEMPTS: 3,
 };

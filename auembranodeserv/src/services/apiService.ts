@@ -1,5 +1,6 @@
 import api from './api';
 import { mockApi } from './mockApi';
+import axios from 'axios';
 
 // Enhanced API service with automatic fallback to mock data
 class ApiService {
@@ -23,8 +24,8 @@ class ApiService {
 
   private async performBackendCheck(): Promise<boolean> {
     try {
-      // Try a simple health check or auth endpoint
-      const response = await api.get('/auth/me', { timeout: 5000 });
+      // Try a simple health check endpoint (health is at root, not under /api/v1)
+      const response = await axios.get('http://localhost:8000/health', { timeout: 5000 });
       return response.status < 500; // Consider 4xx as available but unauthorized
     } catch (error: any) {
       console.log('Backend check failed:', error.message);
