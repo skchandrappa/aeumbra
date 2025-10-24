@@ -1,4 +1,4 @@
-import api from './api';
+import apiService from './api';
 import { User, UserProfile } from '../types';
 
 export interface ProfileUpdate {
@@ -49,52 +49,52 @@ export interface UserService {
 
 const userService: UserService = {
   async getProfile(): Promise<UserProfile> {
-    const response = await api.get<UserProfile>('/users/profile');
-    return response.data;
+    const response = await apiService.get<UserProfile>('/users/profile');
+    return response;
   },
 
   async updateProfile(profileData: ProfileUpdate): Promise<UserProfile> {
-    const response = await api.put<UserProfile>('/users/profile', profileData);
-    return response.data;
+    const response = await apiService.put<UserProfile>('/users/profile', profileData);
+    return response;
   },
 
   async getPublicProfile(userId: string): Promise<UserProfile> {
-    const response = await api.get<UserProfile>(`/users/${userId}/public-profile`);
-    return response.data;
+    const response = await apiService.get<UserProfile>(`/users/${userId}/public-profile`);
+    return response;
   },
 
   async uploadAvatar(file: File): Promise<{ avatar_url: string }> {
     const formData = new FormData();
     formData.append('file', file);
     
-    const response = await api.post<{ avatar_url: string }>('/users/profile/upload-avatar', formData, {
+    const response = await apiService.post<{ avatar_url: string }>('/users/profile/upload-avatar', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     });
-    return response.data;
+    return response;
   },
 
   async uploadCover(file: File): Promise<{ cover_url: string }> {
     const formData = new FormData();
     formData.append('file', file);
     
-    const response = await api.post<{ cover_url: string }>('/users/profile/upload-cover', formData, {
+    const response = await apiService.post<{ cover_url: string }>('/users/profile/upload-cover', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     });
-    return response.data;
+    return response;
   },
 
   async getSettings(): Promise<UserSettings> {
-    const response = await api.get<UserSettings>('/users/settings');
-    return response.data;
+    const response = await apiService.get<UserSettings>('/users/settings');
+    return response;
   },
 
   async updateSettings(settings: Partial<UserSettings>): Promise<UserSettings> {
-    const response = await api.put<UserSettings>('/users/settings', settings);
-    return response.data;
+    const response = await apiService.put<UserSettings>('/users/settings', settings);
+    return response;
   },
 };
 

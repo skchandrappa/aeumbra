@@ -36,10 +36,18 @@ api.interceptors.response.use(
 
     // Handle network errors (backend not available)
     if (error.code === 'NETWORK_ERROR' || error.code === 'ERR_NETWORK' || 
+        error.code === 'ERR_INTERNET_DISCONNECTED' || error.code === 'ERR_CONNECTION_REFUSED' ||
         error.message?.includes('Network Error') || 
-        error.message?.includes('Failed to fetch')) {
+        error.message?.includes('Failed to fetch') ||
+        error.message?.includes('net::ERR_NAME_NOT_RESOLVED') ||
+        error.message?.includes('net::ERR_CONNECTION_REFUSED') ||
+        error.message?.includes('net::ERR_INTERNET_DISCONNECTED') ||
+        error.message?.includes('CORS') ||
+        error.message?.includes('Mixed Content') ||
+        !error.response) {
       
       console.warn('Backend not available, using mock data for demonstration');
+      console.log('Error details:', error);
       
       // Store that we're using mock API
       localStorage.setItem('using_mock_api', 'true');

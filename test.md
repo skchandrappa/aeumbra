@@ -71,3 +71,6 @@ draw a .sql file that can be excuted later after review
     "email": "test@example.com",
     "password": "testpassword123"
   }'
+
+
+https://app.netlify.com/projects/sparkling-pika-64b5bf/deploys/68fad34eaa071e000869a56d
