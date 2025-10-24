@@ -15,6 +15,7 @@ import {
   MenuItem,
   Badge,
 } from '@mui/material';
+import DemoBanner from './DemoBanner';
 import {
   // Menu as MenuIcon,
   Home,
@@ -376,6 +377,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           minHeight: '100vh',
         }}
       >
+        <DemoBanner />
         {children}
       </Box>
       {profileMenu}

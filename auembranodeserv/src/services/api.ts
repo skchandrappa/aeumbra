@@ -1,5 +1,6 @@
 import axios, { AxiosInstance } from 'axios';
 import { API_CONFIG } from '../config/api';
+import { mockApi, shouldUseMockApi } from './mockApi';
 
 // API Configuration
 const API_BASE_URL = API_CONFIG.BASE_URL;
@@ -27,11 +28,37 @@ api.interceptors.request.use(
   }
 );
 
-// Response interceptor to handle token refresh
+// Response interceptor to handle token refresh and network errors
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+
+    // Handle network errors (backend not available)
+    if (error.code === 'NETWORK_ERROR' || error.code === 'ERR_NETWORK' || 
+        error.message?.includes('Network Error') || 
+        error.message?.includes('Failed to fetch')) {
+      
+      console.warn('Backend not available, using mock data for demonstration');
+      
+      // Store that we're using mock API
+      localStorage.setItem('using_mock_api', 'true');
+      
+      // Return a mock response based on the request
+      if (originalRequest.url?.includes('/auth/login')) {
+        return { data: await mockApi.login('demo@aeumbra.com', 'password') };
+      } else if (originalRequest.url?.includes('/auth/register')) {
+        return { data: await mockApi.register({}) };
+      } else if (originalRequest.url?.includes('/auth/me')) {
+        return { data: await mockApi.getCurrentUser() };
+      } else if (originalRequest.url?.includes('/posts')) {
+        return { data: await mockApi.getPosts() };
+      } else if (originalRequest.url?.includes('/bookings')) {
+        return { data: await mockApi.getBookings() };
+      } else if (originalRequest.url?.includes('/notifications')) {
+        return { data: await mockApi.getNotifications() };
+      }
+    }
 
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
