@@ -13,7 +13,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
+  // Paper,
   IconButton,
   Dialog,
   DialogTitle,
@@ -32,10 +32,10 @@ import {
   Edit,
   Delete,
   Save,
-  Cancel,
+  // Cancel,
   TrendingUp,
   LocationOn,
-  Security,
+  // Security,
 } from '@mui/icons-material';
 import Layout from '../components/Layout';
 

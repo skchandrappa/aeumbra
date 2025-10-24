@@ -31,22 +31,22 @@ import { useAuth } from '../contexts/AuthContext';
 import Layout from '../components/Layout';
 import { useNotifications, useUnreadCount, useMarkAsRead, useMarkAllAsRead } from '../hooks/useNotifications';
 
-interface Notification {
-  id: number;
-  type: 'booking_request' | 'booking_confirmed' | 'payment_received' | 'review_received' | 'profile_update' | 'booking_cancelled' | 'system' | 'feature_update';
-  title: string;
-  message: string;
-  is_read: boolean;
-  created_at: string;
-  data?: any;
-}
+// interface Notification {
+//   id: number;
+//   type: 'booking_request' | 'booking_confirmed' | 'payment_received' | 'review_received' | 'profile_update' | 'booking_cancelled' | 'system' | 'feature_update';
+//   title: string;
+//   message: string;
+//   is_read: boolean;
+//   created_at: string;
+//   data?: any;
+// }
 
 const NotificationsPage: React.FC = () => {
-  const { user } = useAuth();
+  // const { user } = useAuth();
   const [tabValue, setTabValue] = useState(0);
-  const isGuard = user?.user_type === 'guard';
+  // const isGuard = user?.user_type === 'guard';
 
-  const { data: notifications = [], isLoading } = useNotifications();
+  const { data: notifications = [] } = useNotifications();
   const { data: unreadCountData = { count: 0 } } = useUnreadCount();
   const markAsReadMutation = useMarkAsRead();
   const markAllAsReadMutation = useMarkAllAsRead();
@@ -97,7 +97,7 @@ const NotificationsPage: React.FC = () => {
     return true; // All
   });
 
-  const unreadCount = notifications.filter(n => !n.is_read).length;
+  // const unreadCount = notifications.filter(n => !n.is_read).length;
 
   return (
     <Layout>

@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from 'react-query';
-import { Post, PostCreate, PostUpdate } from '../types';
+import { PostUpdate } from '../types';
 import postService, { PostCreateData } from '../services/postService';
 
 export const usePosts = (skip = 0, limit = 20, userId?: string, postType?: string) => {

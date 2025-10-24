@@ -25,13 +25,13 @@ import {
 } from '@mui/material';
 import {
   Notifications,
-  Security,
+  // Security,
   Language,
   DarkMode,
-  VolumeUp,
-  LocationOn,
-  Email,
-  Phone,
+  // VolumeUp,
+  // LocationOn,
+  // Email,
+  // Phone,
   Person,
   Shield,
   Logout,

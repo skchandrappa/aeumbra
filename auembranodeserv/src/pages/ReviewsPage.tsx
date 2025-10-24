@@ -5,15 +5,15 @@ import {
   Card,
   CardContent,
   Grid,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemAvatar,
+  // List,
+  // ListItem,
+  // ListItemText,
+  // ListItemAvatar,
   Avatar,
-  Divider,
+  // Divider,
   Tabs,
   Tab,
-  Rating,
+  // Rating,
   Chip,
   Button,
   Paper,
@@ -119,11 +119,11 @@ const ReviewsPage: React.FC = () => {
     return (totalRating / reviewsReceived.length).toFixed(1);
   };
 
-  const getRatingColor = (rating: number) => {
-    if (rating >= 4.5) return 'success';
-    if (rating >= 3.5) return 'warning';
-    return 'error';
-  };
+  // const getRatingColor = (rating: number) => {
+  //   if (rating >= 4.5) return 'success';
+  //   if (rating >= 3.5) return 'warning';
+  //   return 'error';
+  // };
 
   const renderStars = (rating: number) => {
     return (

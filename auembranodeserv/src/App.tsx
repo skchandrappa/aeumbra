@@ -10,7 +10,7 @@ import Layout from './components/Layout';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
-import Dashboard from './pages/Dashboard';
+// import Dashboard from './pages/Dashboard';
 import FeedPage from './pages/FeedPage';
 import BookingsPage from './pages/BookingsPage';
 import ActivityPage from './pages/ActivityPage';
@@ -108,7 +108,7 @@ const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 };
 
 const AppContent: React.FC = () => {
-  const { user } = useAuth();
+  // const { user } = useAuth();
 
   return (
     <Router>
