@@ -1,6 +1,5 @@
 import axios, { AxiosInstance } from 'axios';
 import { API_CONFIG } from '../config/api';
-import { mockApi } from './mockApi';
 
 // API Configuration
 const API_BASE_URL = API_CONFIG.BASE_URL;
@@ -28,69 +27,35 @@ api.interceptors.request.use(
   }
 );
 
-// Response interceptor to handle token refresh and network errors
+// Response interceptor to handle token refresh
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
-    // Handle network errors (backend not available)
-    if (error.code === 'NETWORK_ERROR' || error.code === 'ERR_NETWORK' || 
-        error.code === 'ERR_INTERNET_DISCONNECTED' || error.code === 'ERR_CONNECTION_REFUSED' ||
-        error.message?.includes('Network Error') || 
-        error.message?.includes('Failed to fetch') ||
-        error.message?.includes('net::ERR_NAME_NOT_RESOLVED') ||
-        error.message?.includes('net::ERR_CONNECTION_REFUSED') ||
-        error.message?.includes('net::ERR_INTERNET_DISCONNECTED') ||
-        error.message?.includes('CORS') ||
-        error.message?.includes('Mixed Content') ||
-        !error.response) {
-      
-      console.warn('Backend not available, using mock data for demonstration');
-      console.log('Error details:', error);
-      
-      // Store that we're using mock API
-      localStorage.setItem('using_mock_api', 'true');
-      
-      // Return a mock response based on the request
-      if (originalRequest.url?.includes('/auth/login')) {
-        return { data: await mockApi.login('demo@aeumbra.com', 'password') };
-      } else if (originalRequest.url?.includes('/auth/register')) {
-        return { data: await mockApi.register({}) };
-      } else if (originalRequest.url?.includes('/auth/me')) {
-        return { data: await mockApi.getCurrentUser() };
-      } else if (originalRequest.url?.includes('/posts')) {
-        return { data: await mockApi.getPosts() };
-      } else if (originalRequest.url?.includes('/bookings')) {
-        return { data: await mockApi.getBookings() };
-      } else if (originalRequest.url?.includes('/notifications')) {
-        return { data: await mockApi.getNotifications() };
-      }
-    }
-
+    // Handle 401 errors (token refresh)
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
-
-      try {
-        const refreshToken = localStorage.getItem('refresh_token');
-        if (refreshToken) {
+      
+      const refreshToken = localStorage.getItem('refresh_token');
+      if (refreshToken) {
+        try {
           const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {
-            refresh_token: refreshToken,
+            refresh_token: refreshToken
           });
-
-          const { access_token, refresh_token } = response.data.data;
+          
+          const { access_token } = response.data;
           localStorage.setItem('auth_token', access_token);
-          localStorage.setItem('refresh_token', refresh_token);
-
-          // Retry original request
+          
+          // Retry original request with new token
           originalRequest.headers.Authorization = `Bearer ${access_token}`;
           return api(originalRequest);
+        } catch (refreshError) {
+          // Refresh failed, redirect to login
+          localStorage.removeItem('auth_token');
+          localStorage.removeItem('refresh_token');
+          window.location.href = '/login';
         }
-      } catch (refreshError) {
-        // Refresh failed, redirect to login
-        localStorage.removeItem('auth_token');
-        localStorage.removeItem('refresh_token');
-        window.location.href = '/login';
       }
     }
 
