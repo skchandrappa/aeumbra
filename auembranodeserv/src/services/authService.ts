@@ -20,11 +20,16 @@ const authService: AuthService = {
       password,
     });
     
-    // Store tokens
-    localStorage.setItem('auth_token', response.data.access_token);
-    localStorage.setItem('refresh_token', response.data.refresh_token);
+    console.log('Login API response:', response);
     
-    return response.data;
+    // The backend returns {success: true, data: {access_token, refresh_token, user}}
+    const loginData = response.data;
+    
+    // Store tokens
+    localStorage.setItem('auth_token', loginData.access_token);
+    localStorage.setItem('refresh_token', loginData.refresh_token);
+    
+    return loginData;
   },
 
   async register(userData: RegisterData): Promise<TokenResponse> {
@@ -69,6 +74,7 @@ const authService: AuthService = {
 
   async getCurrentUser(): Promise<User> {
     const response = await apiService.get<{success: boolean, data: User}>('/auth/me');
+    console.log('GetCurrentUser API response:', response);
     return response.data;
   },
 
