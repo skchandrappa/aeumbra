@@ -47,11 +47,12 @@ class ApiService {
     
     console.log('Backend available:', isBackendAvailable, 'for request:', config.url);
     
-    if (!isBackendAvailable) {
-      console.warn('Using mock API - Backend not available');
-      localStorage.setItem('using_mock_api', 'true');
-      return this.getMockResponse<T>(config);
-    }
+    // TEMPORARILY DISABLE MOCK FALLBACK FOR DEBUGGING
+    // if (!isBackendAvailable) {
+    //   console.warn('Using mock API - Backend not available');
+    //   localStorage.setItem('using_mock_api', 'true');
+    //   return this.getMockResponse<T>(config);
+    // }
 
     try {
       console.log('Making API request to:', config.url);
@@ -59,11 +60,12 @@ class ApiService {
       console.log('API request successful:', response.status);
       return response.data;
     } catch (error: any) {
-      // If backend request fails, fallback to mock
-      console.warn('Backend request failed, using mock data:', error.message);
+      // TEMPORARILY DISABLE MOCK FALLBACK FOR DEBUGGING
+      console.error('Backend request failed:', error.message);
       console.log('Error details:', error);
-      localStorage.setItem('using_mock_api', 'true');
-      return this.getMockResponse<T>(config);
+      throw error; // Re-throw the error instead of falling back to mock
+      // localStorage.setItem('using_mock_api', 'true');
+      // return this.getMockResponse<T>(config);
     }
   }
 
