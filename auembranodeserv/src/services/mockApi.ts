@@ -64,6 +64,8 @@ export const mockApi = {
         id: '1',
         user: {
           name: 'Security Guard Pro',
+          first_name: 'Security',
+          last_name: 'Guard Pro',
           avatar: '/aeumbre-icon.png'
         },
         title: 'Professional Security Services',
@@ -80,6 +82,8 @@ export const mockApi = {
         id: '2',
         user: {
           name: 'Event Security Solutions',
+          first_name: 'Event',
+          last_name: 'Security Solutions',
           avatar: '/aeumbre-icon.png'
         },
         title: 'Wedding Security Services',

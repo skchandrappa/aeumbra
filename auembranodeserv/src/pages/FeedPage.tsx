@@ -205,11 +205,14 @@ const FeedPage: React.FC = () => {
               <Box display="flex" alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
                 <Box display="flex" alignItems="center">
                   <Avatar sx={{ mr: 2 }}>
-                    {post.user.first_name[0]}
+                    {post.user.first_name?.[0] || post.user.name?.[0] || 'U'}
                   </Avatar>
                   <Box>
                     <Typography variant="subtitle1" fontWeight="bold">
-                      {post.user.first_name} {post.user.last_name}
+                      {post.user.first_name && post.user.last_name 
+                        ? `${post.user.first_name} ${post.user.last_name}`
+                        : post.user.name || 'Unknown User'
+                      }
                     </Typography>
                     <Box display="flex" alignItems="center" gap={1}>
                       <Typography variant="body2" color="text.secondary">
