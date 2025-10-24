@@ -1,21 +1,6 @@
 // API Configuration
-const getApiBaseUrl = () => {
-  // If we have an environment variable, use it
-  if (process.env.REACT_APP_API_BASE_URL) {
-    return process.env.REACT_APP_API_BASE_URL;
-  }
-  
-  // If we're on ngrok, use relative URLs (proxy will handle routing to backend)
-  if (window.location.hostname.includes('ngrok')) {
-    return '/api/v1';
-  }
-  
-  // Default to localhost for local development
-  return 'http://localhost:8000/api/v1';
-};
-
 export const API_CONFIG = {
-  BASE_URL: getApiBaseUrl(),
+  BASE_URL: process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000/api/v1',
   TIMEOUT: 10000,
   RETRY_ATTEMPTS: 3,
 };

@@ -24,19 +24,11 @@ class ApiService {
 
   private async performBackendCheck(): Promise<boolean> {
     try {
-      // Try a simple health check endpoint
-      // Use relative URL when on ngrok (proxy will handle it), absolute URL for localhost
-      const healthUrl = window.location.hostname.includes('ngrok') 
-        ? '/health' 
-        : 'http://localhost:8000/health';
-      
-      console.log('Checking backend health at:', healthUrl);
-      const response = await axios.get(healthUrl, { timeout: 5000 });
-      console.log('Backend health check response:', response.status, response.data);
+      // Try a simple health check endpoint (health is at root, not under /api/v1)
+      const response = await axios.get('http://localhost:8000/health', { timeout: 5000 });
       return response.status < 500; // Consider 4xx as available but unauthorized
     } catch (error: any) {
       console.log('Backend check failed:', error.message);
-      console.log('Error details:', error);
       return false;
     }
   }
@@ -45,27 +37,20 @@ class ApiService {
   async request<T>(config: any): Promise<T> {
     const isBackendAvailable = await this.checkBackendAvailability();
     
-    console.log('Backend available:', isBackendAvailable, 'for request:', config.url);
-    
-    // TEMPORARILY DISABLE MOCK FALLBACK FOR DEBUGGING
-    // if (!isBackendAvailable) {
-    //   console.warn('Using mock API - Backend not available');
-    //   localStorage.setItem('using_mock_api', 'true');
-    //   return this.getMockResponse<T>(config);
-    // }
+    if (!isBackendAvailable) {
+      console.warn('Using mock API - Backend not available');
+      localStorage.setItem('using_mock_api', 'true');
+      return this.getMockResponse<T>(config);
+    }
 
     try {
-      console.log('Making API request to:', config.url);
       const response = await api(config);
-      console.log('API request successful:', response.status);
       return response.data;
     } catch (error: any) {
-      // TEMPORARILY DISABLE MOCK FALLBACK FOR DEBUGGING
-      console.error('Backend request failed:', error.message);
-      console.log('Error details:', error);
-      throw error; // Re-throw the error instead of falling back to mock
-      // localStorage.setItem('using_mock_api', 'true');
-      // return this.getMockResponse<T>(config);
+      // If backend request fails, fallback to mock
+      console.warn('Backend request failed, using mock data:', error.message);
+      localStorage.setItem('using_mock_api', 'true');
+      return this.getMockResponse<T>(config);
     }
   }
 
