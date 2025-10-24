@@ -6,9 +6,11 @@ const DemoBanner: React.FC = () => {
   const [showBanner, setShowBanner] = useState(false);
 
   useEffect(() => {
-    // Check if we're using mock API
+    // Check if we're using mock API and not on ngrok (which means we have external access)
     const usingMockApi = localStorage.getItem('using_mock_api');
-    if (usingMockApi === 'true') {
+    const isNgrok = window.location.hostname.includes('ngrok');
+    
+    if (usingMockApi === 'true' && !isNgrok) {
       setShowBanner(true);
     }
   }, []);
