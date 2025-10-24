@@ -14,14 +14,14 @@ import {
   Divider,
   Tabs,
   Tab,
-  Paper,
+  // Paper,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Button,
+  // Button,
 } from '@mui/material';
 import {
   CalendarToday,
@@ -30,7 +30,7 @@ import {
   Security,
   Payment,
   Schedule,
-  LocationOn,
+  // LocationOn,
 } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 import Layout from '../components/Layout';

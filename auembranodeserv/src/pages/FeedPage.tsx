@@ -16,25 +16,25 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemAvatar,
-  Divider,
+  // List,
+  // ListItem,
+  // ListItemText,
+  // ListItemAvatar,
+  // Divider,
   LinearProgress,
 } from '@mui/material';
 import {
   Add,
-  Favorite,
+  // Favorite,
   Comment,
   Share,
   MoreVert,
-  LocationOn,
+  // LocationOn,
   Schedule,
-  Star,
-  Security,
+  // Star,
+  // Security,
   BookmarkBorder,
-  Bookmark,
+  // Bookmark,
   ThumbUp,
   ThumbUpOutlined,
 } from '@mui/icons-material';
@@ -42,26 +42,26 @@ import { useAuth } from '../contexts/AuthContext';
 import Layout from '../components/Layout';
 import { usePosts, useCreatePost, useLikePost, useUnlikePost, useCreateComment } from '../hooks/usePosts';
 
-interface Post {
-  id: string;
-  user: {
-    name: string;
-    avatar: string;
-    title: string;
-    rating: number;
-  };
-  content: string;
-  images?: string[];
-  likes: number;
-  comments: number;
-  timeAgo: string;
-  location?: string;
-  isLiked: boolean;
-}
+// interface Post {
+//   id: string;
+//   user: {
+//     name: string;
+//     avatar: string;
+//     title: string;
+//     rating: number;
+//   };
+//   content: string;
+//   images?: string[];
+//   likes: number;
+//   comments: number;
+//   timeAgo: string;
+//   location?: string;
+//   isLiked: boolean;
+// }
 
 const FeedPage: React.FC = () => {
   const { user } = useAuth();
-  const { data: posts = [], isLoading, error } = usePosts();
+  const { data: posts = [] } = usePosts();
   const createPostMutation = useCreatePost();
   const likePostMutation = useLikePost();
   const unlikePostMutation = useUnlikePost();

@@ -1,5 +1,5 @@
 import api from './api';
-import { User, RegisterData, LoginData, TokenResponse, LoginResponse } from '../types';
+import { User, RegisterData, TokenResponse, LoginResponse } from '../types';
 
 export interface AuthService {
   login: (email: string, password: string) => Promise<LoginResponse>;
