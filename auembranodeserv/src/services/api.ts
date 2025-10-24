@@ -1,6 +1,6 @@
 import axios, { AxiosInstance } from 'axios';
 import { API_CONFIG } from '../config/api';
-import { mockApi, shouldUseMockApi } from './mockApi';
+import { mockApi } from './mockApi';
 
 // API Configuration
 const API_BASE_URL = API_CONFIG.BASE_URL;
