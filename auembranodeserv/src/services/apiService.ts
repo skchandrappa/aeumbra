@@ -6,6 +6,11 @@ class ApiService {
   async request<T>(config: any): Promise<T> {
     try {
       const response = await api(config);
+      // Backend returns {success: true, data: {...}, message: "..."}
+      // Extract data from the response
+      if (response.data && typeof response.data === 'object' && 'data' in response.data && 'success' in response.data) {
+        return response.data.data || response.data;
+      }
       return response.data;
     } catch (error: any) {
       console.error('Backend request failed:', error.message);

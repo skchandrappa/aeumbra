@@ -65,11 +65,13 @@ app.add_middleware(
         "http://localhost:3001",
         # Production frontend URLs - add your Vercel/Netlify URL here
         "https://your-app.vercel.app",
+        # Render frontend URLs - update with your actual URL
+        "https://aeumbra-frontend.onrender.com",
         # Allow all origins in development
         "*"
     ],
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=["*"],
 )
 

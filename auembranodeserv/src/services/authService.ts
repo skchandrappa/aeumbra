@@ -15,7 +15,7 @@ export interface AuthService {
 
 const authService: AuthService = {
   async login(email: string, password: string): Promise<LoginResponse> {
-    const response = await apiService.post<{success: boolean, data: LoginResponse}>('/auth/login', {
+    const response = await apiService.post<{success: boolean, message: string, data: LoginResponse}>('/auth/login', {
       email,
       password,
     });
@@ -23,11 +23,15 @@ const authService: AuthService = {
     console.log('Login API response:', response);
     
     // The backend returns {success: true, data: {access_token, refresh_token, user}}
-    const loginData = response.data;
+    const loginData = (response as any).data || response;
     
     // Store tokens
-    localStorage.setItem('auth_token', loginData.access_token);
-    localStorage.setItem('refresh_token', loginData.refresh_token);
+    if (loginData.access_token) {
+      localStorage.setItem('auth_token', loginData.access_token);
+    }
+    if (loginData.refresh_token) {
+      localStorage.setItem('refresh_token', loginData.refresh_token);
+    }
     
     return loginData;
   },

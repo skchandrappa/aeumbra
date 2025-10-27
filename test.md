@@ -74,3 +74,8 @@ draw a .sql file that can be excuted later after review
 
 
 https://app.netlify.com/projects/sparkling-pika-64b5bf/deploys/68fad34eaa071e000869a56d
+
+
+{"email":"finaltest@example.com","password":"test123456","password_confirm":"test123456","user_type":"consumer","first_name":"Final","last_name":"Test"}'
+
+curl -X POST http://localhost:8000/api/v1/auth/register -H "Content-Type: application/json" -d '{"email":"newuser@example.com","password":"password123","password_confirm":"password123","user_type":"guard","first_name":"New","last_name":"Guard"}'
