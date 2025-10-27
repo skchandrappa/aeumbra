@@ -1,0 +1,14 @@
+phases:
+  setup:
+    nixPkgs:
+      - python311
+  
+  install:
+    cmds:
+      - cd pythonbackend
+      - pip install --upgrade pip
+      - pip install -r requirements.txt
+
+start:
+  cmd: cd pythonbackend && uvicorn main:app --host 0.0.0.0 --port $PORT
+
