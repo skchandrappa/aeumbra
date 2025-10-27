@@ -23,6 +23,10 @@ class Settings(BaseSettings):
         "DATABASE_URL",
         "postgresql+asyncpg://admin:lA6FHfJrmXRUitVZfRfeMq6sqxlcIHLU@dpg-d3vgd9uuk2gs73eidngg-a.oregon-postgres.render.com:5432/aeumbre"
     )
+    
+    # Ensure URL uses asyncpg driver for async SQLAlchemy
+    if not DATABASE_URL.startswith("postgresql+asyncpg"):
+        DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://", 1)
     DATABASE_POOL_SIZE: int = 10
     DATABASE_MAX_OVERFLOW: int = 20
     
