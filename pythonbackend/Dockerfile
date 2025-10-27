@@ -16,15 +16,15 @@ RUN apt-get update && apt-get install -y \
     postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements first for better caching
-COPY requirements.txt .
+# Copy requirements first for better caching (when building from pythonbackend/)
+COPY pythonbackend/requirements.txt .
 
 # Install Python dependencies
 RUN pip install --upgrade pip && \
     pip install -r requirements.txt
 
-# Copy application code
-COPY . .
+# Copy application code from pythonbackend
+COPY pythonbackend/ .
 
 # Expose port
 EXPOSE 8000

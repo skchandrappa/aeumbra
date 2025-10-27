@@ -1,3 +1,16 @@
+# Root level ignores
+auembranodeserv/
+database/
+.git/
+.gitignore
+*.md
+*.png
+*.svg
+*.sh
+*.pyc
+__pycache__/
+
+# Python ignores
 __pycache__
 *.pyc
 *.pyo
@@ -14,9 +27,6 @@ venv/
 .idea
 .vscode
 *.log
-.git
-.gitignore
-*.md
-.DS_Store
 node_modules
+.DS_Store
 
