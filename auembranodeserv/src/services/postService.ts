@@ -50,8 +50,8 @@ const postService: PostService = {
     if (userId) params.append('user_id', userId);
     if (postType) params.append('post_type', postType);
     
-    const response = await apiService.get<Post[]>(`/posts?${params.toString()}`);
-    return response;
+    const response = await apiService.get<{success: boolean, data: Post[], message: string, pagination: any}>(`/posts/?${params.toString()}`);
+    return response.data || [];
   },
 
   async createPost(postData: PostCreateData): Promise<Post> {
@@ -59,18 +59,18 @@ const postService: PostService = {
       ? { headers: { 'Content-Type': 'multipart/form-data' } }
       : {};
     
-    const response = await apiService.post<Post>('/posts', postData, config);
-    return response;
+    const response = await apiService.post<{success: boolean, data: Post, message: string}>('/posts/', postData, config);
+    return response.data;
   },
 
   async getPost(postId: string): Promise<Post> {
-    const response = await apiService.get<Post>(`/posts/${postId}`);
-    return response;
+    const response = await apiService.get<{success: boolean, data: Post, message: string}>(`/posts/${postId}`);
+    return response.data;
   },
 
   async updatePost(postId: string, postData: PostUpdate): Promise<Post> {
-    const response = await apiService.put<Post>(`/posts/${postId}`, postData);
-    return response;
+    const response = await apiService.put<{success: boolean, data: Post, message: string}>(`/posts/${postId}`, postData);
+    return response.data;
   },
 
   async deletePost(postId: string): Promise<void> {
@@ -78,13 +78,13 @@ const postService: PostService = {
   },
 
   async getUserPosts(userId: string): Promise<Post[]> {
-    const response = await apiService.get<Post[]>(`/posts/user/${userId}`);
-    return response;
+    const response = await apiService.get<{success: boolean, data: Post[], message: string}>(`/posts/user/${userId}/`);
+    return response.data || [];
   },
 
   async getTrendingPosts(): Promise<Post[]> {
-    const response = await apiService.get<Post[]>('/posts/feed/trending');
-    return response;
+    const response = await apiService.get<{success: boolean, data: Post[], message: string}>(`/posts/feed/trending/`);
+    return response.data || [];
   },
 
   async addMediaToPost(postId: string, file: File): Promise<{ media_url: string }> {

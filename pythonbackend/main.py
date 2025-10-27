@@ -63,7 +63,9 @@ app.add_middleware(
         "http://localhost:3000", 
         "http://127.0.0.1:3000", 
         "http://localhost:3001",
-        # Allow all Tailscale IPs dynamically
+        # Production frontend URLs - add your Vercel/Netlify URL here
+        "https://your-app.vercel.app",
+        # Allow all origins in development
         "*"
     ],
     allow_credentials=True,

@@ -35,10 +35,14 @@ async def get_posts(
             
             if user:
                 # Get media URLs
-                media_query = select(PostMedia).where(PostMedia.post_id == post.id)
-                media_result = await db.execute(media_query)
-                media_list = media_result.scalars().all()
-                media_urls = [media.media_url for media in media_list] if media_list else []
+                try:
+                    media_query = select(PostMedia).where(PostMedia.post_id == post.id)
+                    media_result = await db.execute(media_query)
+                    media_list = media_result.scalars().all()
+                    media_urls = [media.media_url for media in media_list] if media_list else []
+                except Exception as e:
+                    print(f"Error getting media for post {post.id}: {str(e)}")
+                    media_urls = []
                 
                 posts_data.append({
                     "id": post.id,
@@ -50,9 +54,11 @@ async def get_posts(
                     "created_at": post.created_at.isoformat() if post.created_at else None,
                     "user": {
                         "id": user.id,
-                        "first_name": user.first_name,
-                        "last_name": user.last_name,
-                        "avatar_url": user.avatar_url
+                        "first_name": getattr(user, 'first_name', None),
+                        "last_name": getattr(user, 'last_name', None),
+                        "avatar_url": getattr(user, 'avatar_url', None),
+                        "email": user.email,
+                        "user_type": user.user_type
                     }
                 })
         

@@ -32,7 +32,7 @@ async def get_db() -> AsyncSession:
 
 
 # Import all models to ensure they are registered
-from db.models import user, profile
+from db.models import user, profile, post
 # Temporarily comment out problematic models
-# from db.models import verification, post, booking, payment, review, complaint, notification, app_settings
+# from db.models import verification, booking, payment, review, complaint, notification, app_settings
 from db.base import Base

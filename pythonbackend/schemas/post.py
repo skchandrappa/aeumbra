@@ -103,8 +103,8 @@ class PostCreate(BaseModel):
     
     @validator('post_type')
     def validate_post_type(cls, v):
-        if v not in ['text', 'image', 'video', 'carousel']:
-            raise ValueError('Post type must be text, image, video, or carousel')
+        if v not in ['text', 'image', 'video', 'carousel', 'advertisement']:
+            raise ValueError('Post type must be text, image, video, carousel, or advertisement')
         return v
     
     @validator('visibility')
