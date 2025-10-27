@@ -12,4 +12,6 @@ __pycache__/
 node_modules/
 venv/
 .env
+Dockerfile
+.dockerignore
 
