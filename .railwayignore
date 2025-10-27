@@ -1,0 +1,10 @@
+auembranodeserv/
+node_modules/
+database/
+*.md
+*.png
+*.svg
+*.sh
+*.pyc
+__pycache__/
+
