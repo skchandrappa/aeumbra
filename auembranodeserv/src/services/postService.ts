@@ -51,7 +51,8 @@ const postService: PostService = {
     if (postType) params.append('post_type', postType);
     
     const response = await apiService.get<{success: boolean, data: Post[], message: string, pagination: any}>(`/posts/?${params.toString()}`);
-    return response.data || [];
+    // Backend returns {success: true, data: [...], pagination: {...}}
+    return (response as any).data || [];
   },
 
   async createPost(postData: PostCreateData): Promise<Post> {
@@ -60,17 +61,18 @@ const postService: PostService = {
       : {};
     
     const response = await apiService.post<{success: boolean, data: Post, message: string}>('/posts/', postData, config);
-    return response.data;
+    // Backend returns {success: true, data: {...}, message: "..."}
+    return (response as any).data;
   },
 
   async getPost(postId: string): Promise<Post> {
     const response = await apiService.get<{success: boolean, data: Post, message: string}>(`/posts/${postId}`);
-    return response.data;
+    return (response as any).data;
   },
 
   async updatePost(postId: string, postData: PostUpdate): Promise<Post> {
     const response = await apiService.put<{success: boolean, data: Post, message: string}>(`/posts/${postId}`, postData);
-    return response.data;
+    return (response as any).data;
   },
 
   async deletePost(postId: string): Promise<void> {
@@ -79,12 +81,12 @@ const postService: PostService = {
 
   async getUserPosts(userId: string): Promise<Post[]> {
     const response = await apiService.get<{success: boolean, data: Post[], message: string}>(`/posts/user/${userId}/`);
-    return response.data || [];
+    return (response as any).data || [];
   },
 
   async getTrendingPosts(): Promise<Post[]> {
     const response = await apiService.get<{success: boolean, data: Post[], message: string}>(`/posts/feed/trending/`);
-    return response.data || [];
+    return (response as any).data || [];
   },
 
   async addMediaToPost(postId: string, file: File): Promise<{ media_url: string }> {

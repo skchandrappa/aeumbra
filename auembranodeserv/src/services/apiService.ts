@@ -7,10 +7,8 @@ class ApiService {
     try {
       const response = await api(config);
       // Backend returns {success: true, data: {...}, message: "..."}
-      // Extract data from the response
-      if (response.data && typeof response.data === 'object' && 'data' in response.data && 'success' in response.data) {
-        return response.data.data || response.data;
-      }
+      // The response.data is the full backend response with success, data, message
+      // We need to return it as-is so the services can extract what they need
       return response.data;
     } catch (error: any) {
       console.error('Backend request failed:', error.message);

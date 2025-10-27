@@ -79,7 +79,7 @@ const authService: AuthService = {
   async getCurrentUser(): Promise<User> {
     const response = await apiService.get<{success: boolean, data: User}>('/auth/me');
     console.log('GetCurrentUser API response:', response);
-    return response.data;
+    return (response as any).data;
   },
 
   async forgotPassword(email: string): Promise<{ message: string }> {
