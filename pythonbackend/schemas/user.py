@@ -2,7 +2,7 @@
 User schemas
 """
 
-from pydantic import BaseModel, EmailStr, validator
+from pydantic import BaseModel, validator
 from typing import Optional, List
 from datetime import datetime
 

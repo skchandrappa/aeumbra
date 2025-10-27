@@ -1,0 +1,15 @@
+# Ignore everything except pythonbackend/
+auembranodeserv/
+database/
+.git/
+.gitignore
+*.md
+*.png
+*.svg
+*.sh
+*.pyc
+__pycache__/
+node_modules/
+venv/
+.env
+
