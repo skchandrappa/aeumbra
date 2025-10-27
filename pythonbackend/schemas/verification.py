@@ -17,7 +17,7 @@ class VerificationDocumentTypeResponse(BaseModel):
     is_active: bool
     
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 
 class VerificationResponse(BaseModel):
@@ -43,7 +43,7 @@ class VerificationResponse(BaseModel):
     updated_at: datetime
     
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 
 class VerificationCreate(BaseModel):
@@ -74,7 +74,7 @@ class BackgroundCheckResponse(BaseModel):
     expires_at: Optional[datetime]
     
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 
 class BackgroundCheckCreate(BaseModel):

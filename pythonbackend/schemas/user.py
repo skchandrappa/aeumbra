@@ -44,7 +44,7 @@ class ProfileResponse(BaseModel):
     updated_at: datetime
     
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 
 class ProfileUpdate(BaseModel):
@@ -103,7 +103,7 @@ class UserSettingsResponse(BaseModel):
     updated_at: datetime
     
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 
 class UserSettingsUpdate(BaseModel):

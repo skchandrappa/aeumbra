@@ -22,7 +22,7 @@ class PostMediaResponse(BaseModel):
     created_at: datetime
     
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 
 class PostLikeResponse(BaseModel):
@@ -33,7 +33,7 @@ class PostLikeResponse(BaseModel):
     created_at: datetime
     
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 
 class PostCommentResponse(BaseModel):
@@ -50,7 +50,7 @@ class PostCommentResponse(BaseModel):
     updated_at: datetime
     
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 
 class CommentLikeResponse(BaseModel):
@@ -61,7 +61,7 @@ class CommentLikeResponse(BaseModel):
     created_at: datetime
     
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 
 class PostResponse(BaseModel):
@@ -87,7 +87,7 @@ class PostResponse(BaseModel):
     updated_at: datetime
     
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 
 class PostCreate(BaseModel):
