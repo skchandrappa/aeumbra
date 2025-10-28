@@ -1,7 +1,7 @@
 // API Configuration
 export const API_CONFIG = {
   BASE_URL: process.env.REACT_APP_API_BASE_URL || 'https://aeumbra.onrender.com/api/v1',
-  TIMEOUT: 10000,
+  TIMEOUT: 60000, // Increased to 60 seconds for Render cold starts
   RETRY_ATTEMPTS: 3,
 };
 
