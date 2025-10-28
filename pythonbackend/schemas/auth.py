@@ -2,19 +2,27 @@
 Authentication schemas
 """
 
-from pydantic import BaseModel, EmailStr, validator
+from pydantic import BaseModel, validator
 from typing import Optional
 from datetime import datetime
+import re
 
 
 class UserRegister(BaseModel):
     """User registration schema"""
-    email: EmailStr
+    email: str
     password: str
     phone_number: Optional[str] = None
     first_name: str
     last_name: str
     user_type: str  # guard, consumer, admin
+    
+    @validator('email')
+    def validate_email(cls, v):
+        pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        if not re.match(pattern, v):
+            raise ValueError('Invalid email format')
+        return v
     
     @validator('password')
     def validate_password(cls, v):
@@ -31,7 +39,7 @@ class UserRegister(BaseModel):
 
 class UserLogin(BaseModel):
     """User login schema"""
-    email: EmailStr
+    email: str
     password: str
 
 
@@ -56,7 +64,7 @@ class UserResponse(BaseModel):
     updated_at: datetime
     
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 
 class LoginResponse(BaseModel):
@@ -75,7 +83,7 @@ class RefreshTokenRequest(BaseModel):
 
 class PasswordResetRequest(BaseModel):
     """Password reset request schema"""
-    email: EmailStr
+    email: str
 
 
 class PasswordResetConfirm(BaseModel):

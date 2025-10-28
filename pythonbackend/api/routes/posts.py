@@ -1,18 +1,15 @@
-"""
-Social posts routes
-"""
-
-from fastapi import APIRouter, Depends, HTTPException, status, Query, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 from typing import List, Optional
-from datetime import datetime
-
-from core.security import get_current_active_user
 from db.session import get_db
+from db.models.post import Post, PostMedia
 from db.models.user import User
+from core.security import get_current_active_user
+from schemas.post import PostCreate, PostUpdate, PostResponse
+from services.post_service import PostService
 
 router = APIRouter()
-
 
 @router.get("/")
 async def get_posts(
@@ -24,460 +21,168 @@ async def get_posts(
     db: AsyncSession = Depends(get_db)
 ):
     """Get posts feed"""
-    # For now, return mock data with sample images
-    mock_posts = [
-        {
-            "id": 1,
-            "content": "Just completed a successful security detail at a corporate event. Great team and professional environment!",
-            "post_type": "work_update",
-            "media_urls": [
-                "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&h=300&fit=crop",
-                "https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?w=500&h=300&fit=crop"
-            ],
-            "likes_count": 5,
-            "comments_count": 2,
-            "created_at": "2025-10-23T10:00:00Z",
-            "user": {
-                "id": 1,
-                "first_name": "John",
-                "last_name": "Doe",
-                "avatar_url": None
-            }
-        },
-        {
-            "id": 2,
-            "content": "Looking for security work this weekend. Available for events, parties, or corporate security.",
-            "post_type": "job_seeking",
-            "media_urls": [
-                "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=500&h=300&fit=crop"
-            ],
-            "likes_count": 3,
-            "comments_count": 1,
-            "created_at": "2025-10-23T09:30:00Z",
-            "user": {
-                "id": 2,
-                "first_name": "Jane",
-                "last_name": "Smith",
-                "avatar_url": None
-            }
-        },
-        {
-            "id": 3,
-            "content": "Security training session completed! Always learning new techniques to better serve our clients.",
-            "post_type": "training",
-            "media_urls": [
-                "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=500&h=300&fit=crop",
-                "https://images.unsplash.com/photo-1581578731548-c6a0c3f2e6b8?w=500&h=300&fit=crop",
-                "https://images.unsplash.com/photo-1551601651-2a8555f1a136?w=500&h=300&fit=crop"
-            ],
-            "likes_count": 8,
-            "comments_count": 4,
-            "created_at": "2025-10-23T08:15:00Z",
-            "user": {
-                "id": 3,
-                "first_name": "Mike",
-                "last_name": "Johnson",
-                "avatar_url": None
-            }
-        },
-        {
-            "id": 4,
-            "content": "Night shift security at the downtown office building. Quiet night but always vigilant!",
-            "post_type": "work_update",
-            "media_urls": [
-                "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=500&h=300&fit=crop"
-            ],
-            "likes_count": 6,
-            "comments_count": 1,
-            "created_at": "2025-10-23T07:45:00Z",
-            "user": {
-                "id": 4,
-                "first_name": "Sarah",
-                "last_name": "Wilson",
-                "avatar_url": None
-            }
-        },
-        {
-            "id": 5,
-            "content": "URGENT: Need security guard for wedding event this Saturday evening in Brooklyn. Must have experience with large events. $50/hour for 6 hours. Please contact ASAP!",
-            "post_type": "guard_request",
-            "media_urls": [
-                "https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=500&h=300&fit=crop"
-            ],
-            "likes_count": 12,
-            "comments_count": 8,
-            "created_at": "2025-10-23T09:30:00Z",
-            "user": {
-                "id": 5,
-                "first_name": "Emily",
-                "last_name": "Brown",
-                "avatar_url": None
-            }
-        },
-        {
-            "id": 6,
-            "content": "Looking for experienced security guard for corporate event next Friday. Event will be at Manhattan Convention Center from 6 PM to 11 PM. Professional attire required.",
-            "post_type": "guard_request",
-            "media_urls": [
-                "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=500&h=300&fit=crop"
-            ],
-            "likes_count": 8,
-            "comments_count": 5,
-            "created_at": "2025-10-23T11:15:00Z",
-            "user": {
-                "id": 6,
-                "first_name": "David",
-                "last_name": "Williams",
-                "avatar_url": None
-            }
-        },
-        {
-            "id": 7,
-            "content": "Security needed for construction site in Queens. Night shift from 10 PM to 6 AM. Must have valid security license. $35/hour. Long-term opportunity available.",
-            "post_type": "guard_request",
-            "media_urls": [
-                "https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=500&h=300&fit=crop"
-            ],
-            "likes_count": 15,
-            "comments_count": 12,
-            "created_at": "2025-10-23T14:20:00Z",
-            "user": {
-                "id": 7,
-                "first_name": "Robert",
-                "last_name": "Anderson",
-                "avatar_url": None
-            }
-        },
-        {
-            "id": 8,
-            "content": "VIP personal protection needed for business executive. Must have experience with high-profile clients. Discretion and professionalism required. Excellent pay.",
-            "post_type": "guard_request",
-            "media_urls": [
-                "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=500&h=300&fit=crop"
-            ],
-            "likes_count": 20,
-            "comments_count": 15,
-            "created_at": "2025-10-23T16:45:00Z",
-            "user": {
-                "id": 8,
-                "first_name": "Lisa",
-                "last_name": "Rodriguez",
-                "avatar_url": None
-            }
-        },
-        {
-            "id": 9,
-            "content": "Looking for security work opportunities. 5+ years experience in corporate security, crowd control, and event security. Available for both day and night shifts.",
-            "post_type": "work_request",
-            "media_urls": [
-                "https://images.unsplash.com/photo-1581578731548-c6a0c3f2e6b8?w=500&h=300&fit=crop",
-                "https://images.unsplash.com/photo-1551601651-2a8555f1a136?w=500&h=300&fit=crop"
-            ],
-            "likes_count": 7,
-            "comments_count": 3,
-            "created_at": "2025-10-23T18:00:00Z",
-            "user": {
-                "id": 9,
-                "first_name": "Alex",
-                "last_name": "Thompson",
-                "avatar_url": None
-            }
-        },
-        {
-            "id": 10,
-            "content": "Security equipment showcase: Latest body cameras, communication devices, and safety gear. Professional quality for all security needs.",
-            "post_type": "equipment_showcase",
-            "media_urls": [
-                "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&h=300&fit=crop",
-                "https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?w=500&h=300&fit=crop",
-                "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=500&h=300&fit=crop"
-            ],
-            "likes_count": 12,
-            "comments_count": 6,
-            "created_at": "2025-10-23T19:15:00Z",
-            "user": {
-                "id": 10,
-                "first_name": "Security",
-                "last_name": "Pro",
-                "avatar_url": None
-            }
-        },
-        {
-            "id": 11,
-            "content": "Night patrol at the industrial complex. Everything secure and under control. Professional security services available for your business.",
-            "post_type": "work_update",
-            "media_urls": [
-                "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=500&h=300&fit=crop",
-                "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=500&h=300&fit=crop"
-            ],
-            "likes_count": 9,
-            "comments_count": 2,
-            "created_at": "2025-10-23T20:30:00Z",
-            "user": {
-                "id": 11,
-                "first_name": "Marcus",
-                "last_name": "Davis",
-                "avatar_url": None
-            }
-        },
-        {
-            "id": 12,
-            "content": "Security team training session: Advanced threat assessment and response protocols. Always improving our skills to better serve clients.",
-            "post_type": "training",
-            "media_urls": [
-                "https://images.unsplash.com/photo-1551601651-2a8555f1a136?w=500&h=300&fit=crop",
-                "https://images.unsplash.com/photo-1581578731548-c6a0c3f2e6b8?w=500&h=300&fit=crop"
-            ],
-            "likes_count": 15,
-            "comments_count": 8,
-            "created_at": "2025-10-23T21:00:00Z",
-            "user": {
-                "id": 12,
-                "first_name": "Security",
-                "last_name": "Training",
-                "avatar_url": None
-            }
-        },
-        {
-            "id": 13,
-            "content": "Available for immediate security work. Specialized in retail security, loss prevention, and customer service. Flexible schedule.",
-            "post_type": "work_request",
-            "media_urls": [
-                "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=500&h=300&fit=crop"
-            ],
-            "likes_count": 5,
-            "comments_count": 2,
-            "created_at": "2025-10-23T22:15:00Z",
-            "user": {
-                "id": 13,
-                "first_name": "Jennifer",
-                "last_name": "Lee",
-                "avatar_url": None
-            }
-        },
-        {
-            "id": 14,
-            "content": "Security checkpoint at the corporate headquarters. All personnel and visitors properly screened. Maintaining high security standards.",
-            "post_type": "work_update",
-            "media_urls": [
-                "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&h=300&fit=crop",
-                "https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?w=500&h=300&fit=crop",
-                "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=500&h=300&fit=crop"
-            ],
-            "likes_count": 11,
-            "comments_count": 4,
-            "created_at": "2025-10-23T23:00:00Z",
-            "user": {
-                "id": 14,
-                "first_name": "David",
-                "last_name": "Miller",
-                "avatar_url": None
-            }
-        },
-        {
-            "id": 15,
-            "content": "Security awareness post: Always be vigilant and report suspicious activities. Safety is everyone's responsibility.",
-            "post_type": "safety_tip",
-            "media_urls": [
-                "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=500&h=300&fit=crop"
-            ],
-            "likes_count": 18,
-            "comments_count": 7,
-            "created_at": "2025-10-24T08:00:00Z",
-            "user": {
-                "id": 15,
-                "first_name": "Safety",
-                "last_name": "First",
-                "avatar_url": None
-            }
-        },
-        {
-            "id": 16,
-            "content": "Looking for security work in the downtown area. Experience with office buildings, retail security, and event management. Available immediately.",
-            "post_type": "work_request",
-            "media_urls": [
-                "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=500&h=300&fit=crop",
-                "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=500&h=300&fit=crop"
-            ],
-            "likes_count": 6,
-            "comments_count": 3,
-            "created_at": "2025-10-24T09:30:00Z",
-            "user": {
-                "id": 16,
-                "first_name": "Ryan",
-                "last_name": "Garcia",
-                "avatar_url": None
-            }
-        },
-        {
-            "id": 17,
-            "content": "Security team meeting: Planning for the upcoming corporate event. Coordination and communication are key to successful security operations.",
-            "post_type": "team_update",
-            "media_urls": [
-                "https://images.unsplash.com/photo-1551601651-2a8555f1a136?w=500&h=300&fit=crop",
-                "https://images.unsplash.com/photo-1581578731548-c6a0c3f2e6b8?w=500&h=300&fit=crop"
-            ],
-            "likes_count": 13,
-            "comments_count": 5,
-            "created_at": "2025-10-24T10:45:00Z",
-            "user": {
-                "id": 17,
-                "first_name": "Team",
-                "last_name": "Leader",
-                "avatar_url": None
-            }
-        },
-        {
-            "id": 18,
-            "content": "Security equipment maintenance day. All gear checked, cleaned, and ready for action. Professional equipment for professional security services.",
-            "post_type": "equipment_update",
-            "media_urls": [
-                "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&h=300&fit=crop",
-                "https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?w=500&h=300&fit=crop"
-            ],
-            "likes_count": 8,
-            "comments_count": 3,
-            "created_at": "2025-10-24T11:30:00Z",
-            "user": {
-                "id": 18,
-                "first_name": "Equipment",
-                "last_name": "Manager",
-                "avatar_url": None
-            }
-        },
-        {
-            "id": 19,
-            "content": "🔥 SPECIAL OFFER! 🔥 Professional Security Uniforms at DISCOUNTED PRICES! Get 30% OFF on all security uniforms, tactical gear, and accessories. Premium quality materials, perfect fit guarantee, and fast shipping. Limited time offer - don't miss out! Contact us for bulk orders and additional discounts. #SecurityUniforms #TacticalGear #ProfessionalLook",
-            "post_type": "advertisement",
-            "media_urls": [
-                "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&h=300&fit=crop",
-                "https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?w=500&h=300&fit=crop",
-                "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=500&h=300&fit=crop"
-            ],
-            "likes_count": 25,
-            "comments_count": 12,
-            "created_at": "2025-10-24T12:00:00Z",
-            "user": {
-                "id": 19,
-                "first_name": "Security",
-                "last_name": "Training Pro",
-                "avatar_url": None
+    try:
+        post_service = PostService(db)
+        posts = await post_service.get_posts(skip, limit, user_id, post_type)
+        
+        # Convert to response format
+        posts_data = []
+        for post in posts:
+            # Get user information
+            user_query = select(User).where(User.id == post.user_id)
+            user_result = await db.execute(user_query)
+            user = user_result.scalar_one_or_none()
+            
+            if user:
+                # Get media URLs
+                try:
+                    media_query = select(PostMedia).where(PostMedia.post_id == post.id)
+                    media_result = await db.execute(media_query)
+                    media_list = media_result.scalars().all()
+                    media_urls = [media.media_url for media in media_list] if media_list else []
+                except Exception as e:
+                    print(f"Error getting media for post {post.id}: {str(e)}")
+                    media_urls = []
+                
+                posts_data.append({
+                    "id": post.id,
+                    "content": post.content,
+                    "post_type": post.post_type,
+                    "media_urls": media_urls,
+                    "likes_count": post.like_count or 0,
+                    "comments_count": post.comment_count or 0,
+                    "created_at": post.created_at.isoformat() if post.created_at else None,
+                    "user": {
+                        "id": user.id,
+                        "first_name": getattr(user, 'first_name', None),
+                        "last_name": getattr(user, 'last_name', None),
+                        "avatar_url": getattr(user, 'avatar_url', None),
+                        "email": user.email,
+                        "user_type": user.user_type
+                    }
+                })
+        
+        return {
+            "success": True,
+            "message": "Posts retrieved successfully",
+            "data": posts_data,
+            "pagination": {
+                "skip": skip,
+                "limit": limit,
+                "total": len(posts_data)
             }
         }
-    ]
-    
-    return mock_posts
+        
+    except Exception as e:
+        print(f"Error getting posts: {str(e)}")
+        # If no posts in database, return empty array
+        return {
+            "success": True,
+            "message": "No posts found",
+            "data": [],
+            "pagination": {
+                "skip": skip,
+                "limit": limit,
+                "total": 0
+            }
+        }
 
 
 @router.post("/")
 async def create_post(
     content: str,
     post_type: str = "general",
-    files: List[UploadFile] = File(None),
     current_user: User = Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db)
 ):
-    """Create a new post with optional image uploads"""
-    import os
-    import uuid
-    from datetime import datetime
-    
-    # Create uploads directory if it doesn't exist
-    upload_dir = "uploads/posts"
-    os.makedirs(upload_dir, exist_ok=True)
-    
-    media_urls = []
-    
-    # Handle file uploads
-    if files:
-        for file in files:
-            if file.filename:
-                # Generate unique filename
-                file_extension = os.path.splitext(file.filename)[1]
-                unique_filename = f"{uuid.uuid4()}{file_extension}"
-                file_path = os.path.join(upload_dir, unique_filename)
-                
-                # Save file
-                with open(file_path, "wb") as buffer:
-                    content_bytes = await file.read()
-                    buffer.write(content_bytes)
-                
-                # Add to media URLs (in production, this would be a proper URL)
-                media_urls.append(f"/uploads/posts/{unique_filename}")
-    
-    # For now, return mock data with uploaded images
-    return {
-        "id": 5,
-        "content": content,
-        "post_type": post_type,
-        "media_urls": media_urls,
-        "likes_count": 0,
-        "comments_count": 0,
-        "created_at": datetime.now().isoformat() + "Z",
-        "user": {
-            "id": current_user.id,
-            "first_name": current_user.first_name or "Current",
-            "last_name": current_user.last_name or "User",
-            "avatar_url": None
+    """Create a new post"""
+    try:
+        post_service = PostService(db)
+        post_data = PostCreate(
+            content=content,
+            post_type=post_type,
+            visibility="public",
+            allow_comments=True,
+            allow_sharing=True
+        )
+        post = await post_service.create_post(
+            user_id=current_user.id,
+            post_data=post_data
+        )
+        
+        return {
+            "success": True,
+            "message": "Post created successfully",
+            "data": {
+                "id": post.id,
+                "content": post.content,
+                "post_type": post.post_type,
+                "created_at": post.created_at.isoformat() if post.created_at else None
+            }
         }
-    }
+    except Exception as e:
+        print(f"Error creating post: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to create post: {str(e)}"
+        )
 
 
 @router.get("/{post_id}")
 async def get_post(
     post_id: int,
-    db: AsyncSession = Depends(get_db)
-):
-    """Get a specific post"""
-    post_service = PostService(db)
-    post = await post_service.get_post(post_id)
-    
-    if not post:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Post not found"
-        )
-    
-    return {"id": post_id, "content": "Mock post", "user": {"id": 1, "first_name": "Mock", "last_name": "User"}}
-
-
-@router.put("/{post_id}")
-async def update_post(
-    post_id: int,
-    post_data: dict,
     current_user: User = Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db)
 ):
-    """Update a post"""
-    post_service = PostService(db)
-    post = await post_service.update_post(post_id, current_user.id, post_data)
-    
-    if not post:
+    """Get a specific post by ID"""
+    try:
+        post_service = PostService(db)
+        post = await post_service.get_post(post_id)
+        
+        if not post:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Post not found"
+            )
+        
+        # Get user information
+        user_query = select(User).where(User.id == post.user_id)
+        user_result = await db.execute(user_query)
+        user = user_result.scalar_one_or_none()
+        
+        if user:
+            return {
+                "success": True,
+                "message": "Post retrieved successfully",
+                "data": {
+                    "id": post.id,
+                    "content": post.content,
+                    "post_type": post.post_type,
+                    "media_urls": post.media_urls or [],
+                    "likes_count": post.likes_count or 0,
+                    "comments_count": post.comments_count or 0,
+                    "created_at": post.created_at.isoformat() if post.created_at else None,
+                    "user": {
+                        "id": user.id,
+                        "first_name": user.first_name,
+                        "last_name": user.last_name,
+                        "avatar_url": user.avatar_url
+                    }
+                }
+            }
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found"
+            )
+            
+    except HTTPException:
+        raise
+    except Exception as e:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Post not found or not authorized"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to retrieve post: {str(e)}"
         )
-    
-    return {"id": post_id, "content": "Mock post", "user": {"id": 1, "first_name": "Mock", "last_name": "User"}}
-
-
-@router.delete("/{post_id}")
-async def delete_post(
-    post_id: int,
-    current_user: User = Depends(get_current_active_user),
-    db: AsyncSession = Depends(get_db)
-):
-    """Delete a post"""
-    post_service = PostService(db)
-    success = await post_service.delete_post(post_id, current_user.id)
-    
-    if not success:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Post not found or not authorized"
-        )
-    
-    return {"message": "Post deleted successfully"}
 
 
 @router.get("/user/{user_id}")
@@ -485,72 +190,133 @@ async def get_user_posts(
     user_id: int,
     skip: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
+    current_user: User = Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db)
 ):
     """Get posts by a specific user"""
-    post_service = PostService(db)
-    posts = await post_service.get_user_posts(user_id, skip=skip, limit=limit)
-    return [{"id": post.id, "content": "Mock post", "user": {"id": 1, "first_name": "Mock", "last_name": "User"}} for post in posts]
+    try:
+        post_service = PostService(db)
+        posts = await post_service.get_user_posts(user_id, skip, limit)
+        
+        return {
+            "success": True,
+            "message": "User posts retrieved successfully",
+            "data": posts,
+            "pagination": {
+                "skip": skip,
+                "limit": limit,
+                "total": len(posts)
+            }
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to retrieve user posts: {str(e)}"
+        )
 
 
 @router.get("/feed/trending")
 async def get_trending_posts(
     skip: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
+    current_user: User = Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db)
 ):
-    """Get trending posts"""
-    post_service = PostService(db)
-    posts = await post_service.get_trending_posts(skip=skip, limit=limit)
-    return [{"id": post.id, "content": "Mock post", "user": {"id": 1, "first_name": "Mock", "last_name": "User"}} for post in posts]
+    """Get trending posts (most liked)"""
+    try:
+        post_service = PostService(db)
+        posts = await post_service.get_trending_posts(skip, limit)
+        
+        return {
+            "success": True,
+            "message": "Trending posts retrieved successfully",
+            "data": posts,
+            "pagination": {
+                "skip": skip,
+                "limit": limit,
+                "total": len(posts)
+            }
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to retrieve trending posts: {str(e)}"
+        )
 
 
-# Media endpoints
 @router.post("/{post_id}/media")
 async def add_media_to_post(
     post_id: int,
-    file: UploadFile = File(...),
+    media_urls: List[str],
     current_user: User = Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db)
 ):
     """Add media to a post"""
-    post_service = PostService(db)
-    media = await post_service.add_media_to_post(post_id, current_user.id, file)
-    return PostMediaResponse.from_orm(media)
+    try:
+        post_service = PostService(db)
+        post = await post_service.add_media_to_post(post_id, media_urls)
+        
+        return {
+            "success": True,
+            "message": "Media added successfully",
+            "data": {
+                "id": post.id,
+                "media_urls": post.media_urls
+            }
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to add media: {str(e)}"
+        )
 
 
 @router.get("/{post_id}/media")
 async def get_post_media(
     post_id: int,
+    current_user: User = Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db)
 ):
     """Get media for a post"""
-    post_service = PostService(db)
-    media = await post_service.get_post_media(post_id)
-    return [PostMediaResponse.from_orm(m) for m in media]
+    try:
+        post_service = PostService(db)
+        media = await post_service.get_post_media(post_id)
+        
+        return {
+            "success": True,
+            "message": "Media retrieved successfully",
+            "data": media
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to retrieve media: {str(e)}"
+        )
 
 
-@router.delete("/{post_id}/media/{media_id}")
+@router.delete("/{post_id}/media/{media_url}")
 async def delete_post_media(
     post_id: int,
-    media_id: int,
+    media_url: str,
     current_user: User = Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db)
 ):
     """Delete media from a post"""
-    post_service = PostService(db)
-    success = await post_service.delete_post_media(post_id, media_id, current_user.id)
-    
-    if not success:
+    try:
+        post_service = PostService(db)
+        await post_service.delete_post_media(post_id, media_url)
+        
+        return {
+            "success": True,
+            "message": "Media deleted successfully"
+        }
+    except Exception as e:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Media not found or not authorized"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to delete media: {str(e)}"
         )
-    
-    return {"message": "Media deleted successfully"}
 
 
-# Like endpoints
 @router.post("/{post_id}/like")
 async def like_post(
     post_id: int,
@@ -558,9 +324,19 @@ async def like_post(
     db: AsyncSession = Depends(get_db)
 ):
     """Like a post"""
-    post_service = PostService(db)
-    like = await post_service.like_post(post_id, current_user.id)
-    return PostLikeResponse.from_orm(like)
+    try:
+        post_service = PostService(db)
+        await post_service.like_post(post_id, current_user.id)
+        
+        return {
+            "success": True,
+            "message": "Post liked successfully"
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to like post: {str(e)}"
+        )
 
 
 @router.delete("/{post_id}/like")
@@ -570,46 +346,70 @@ async def unlike_post(
     db: AsyncSession = Depends(get_db)
 ):
     """Unlike a post"""
-    post_service = PostService(db)
-    success = await post_service.unlike_post(post_id, current_user.id)
-    
-    if not success:
+    try:
+        post_service = PostService(db)
+        await post_service.unlike_post(post_id, current_user.id)
+        
+        return {
+            "success": True,
+            "message": "Post unliked successfully"
+        }
+    except Exception as e:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Like not found"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to unlike post: {str(e)}"
         )
-    
-    return {"message": "Post unliked successfully"}
 
 
 @router.get("/{post_id}/likes")
 async def get_post_likes(
     post_id: int,
-    skip: int = Query(0, ge=0),
-    limit: int = Query(20, ge=1, le=100),
+    current_user: User = Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db)
 ):
     """Get likes for a post"""
-    post_service = PostService(db)
-    likes = await post_service.get_post_likes(post_id, skip=skip, limit=limit)
-    return [PostLikeResponse.from_orm(like) for like in likes]
+    try:
+        post_service = PostService(db)
+        likes = await post_service.get_post_likes(post_id)
+        
+        return {
+            "success": True,
+            "message": "Likes retrieved successfully",
+            "data": likes
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to retrieve likes: {str(e)}"
+        )
 
 
-# Comment endpoints
 @router.post("/{post_id}/comments")
 async def create_comment(
     post_id: int,
     content: str,
-    parent_comment_id: Optional[int] = None,
     current_user: User = Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db)
 ):
     """Create a comment on a post"""
-    post_service = PostService(db)
-    comment = await post_service.create_comment(
-        post_id, current_user.id, content, parent_comment_id
-    )
-    return PostCommentResponse.from_orm(comment)
+    try:
+        post_service = PostService(db)
+        comment = await post_service.create_comment(post_id, current_user.id, content)
+        
+        return {
+            "success": True,
+            "message": "Comment created successfully",
+            "data": {
+                "id": comment.id,
+                "content": comment.content,
+                "created_at": comment.created_at.isoformat() if comment.created_at else None
+            }
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to create comment: {str(e)}"
+        )
 
 
 @router.get("/{post_id}/comments")
@@ -617,12 +417,29 @@ async def get_post_comments(
     post_id: int,
     skip: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
+    current_user: User = Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db)
 ):
     """Get comments for a post"""
-    post_service = PostService(db)
-    comments = await post_service.get_post_comments(post_id, skip=skip, limit=limit)
-    return [PostCommentResponse.from_orm(comment) for comment in comments]
+    try:
+        post_service = PostService(db)
+        comments = await post_service.get_post_comments(post_id, skip, limit)
+        
+        return {
+            "success": True,
+            "message": "Comments retrieved successfully",
+            "data": comments,
+            "pagination": {
+                "skip": skip,
+                "limit": limit,
+                "total": len(comments)
+            }
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to retrieve comments: {str(e)}"
+        )
 
 
 @router.put("/comments/{comment_id}")
@@ -633,16 +450,24 @@ async def update_comment(
     db: AsyncSession = Depends(get_db)
 ):
     """Update a comment"""
-    post_service = PostService(db)
-    comment = await post_service.update_comment(comment_id, current_user.id, content)
-    
-    if not comment:
+    try:
+        post_service = PostService(db)
+        comment = await post_service.update_comment(comment_id, current_user.id, content)
+        
+        return {
+            "success": True,
+            "message": "Comment updated successfully",
+            "data": {
+                "id": comment.id,
+                "content": comment.content,
+                "updated_at": comment.updated_at.isoformat() if comment.updated_at else None
+            }
+        }
+    except Exception as e:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Comment not found or not authorized"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to update comment: {str(e)}"
         )
-    
-    return PostCommentResponse.from_orm(comment)
 
 
 @router.delete("/comments/{comment_id}")
@@ -652,16 +477,19 @@ async def delete_comment(
     db: AsyncSession = Depends(get_db)
 ):
     """Delete a comment"""
-    post_service = PostService(db)
-    success = await post_service.delete_comment(comment_id, current_user.id)
-    
-    if not success:
+    try:
+        post_service = PostService(db)
+        await post_service.delete_comment(comment_id, current_user.id)
+        
+        return {
+            "success": True,
+            "message": "Comment deleted successfully"
+        }
+    except Exception as e:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Comment not found or not authorized"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to delete comment: {str(e)}"
         )
-    
-    return {"message": "Comment deleted successfully"}
 
 
 @router.post("/comments/{comment_id}/like")
@@ -671,9 +499,19 @@ async def like_comment(
     db: AsyncSession = Depends(get_db)
 ):
     """Like a comment"""
-    post_service = PostService(db)
-    like = await post_service.like_comment(comment_id, current_user.id)
-    return CommentLikeResponse.from_orm(like)
+    try:
+        post_service = PostService(db)
+        await post_service.like_comment(comment_id, current_user.id)
+        
+        return {
+            "success": True,
+            "message": "Comment liked successfully"
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to like comment: {str(e)}"
+        )
 
 
 @router.delete("/comments/{comment_id}/like")
@@ -683,13 +521,16 @@ async def unlike_comment(
     db: AsyncSession = Depends(get_db)
 ):
     """Unlike a comment"""
-    post_service = PostService(db)
-    success = await post_service.unlike_comment(comment_id, current_user.id)
-    
-    if not success:
+    try:
+        post_service = PostService(db)
+        await post_service.unlike_comment(comment_id, current_user.id)
+        
+        return {
+            "success": True,
+            "message": "Comment unliked successfully"
+        }
+    except Exception as e:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Like not found"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to unlike comment: {str(e)}"
         )
-    
-    return {"message": "Comment unliked successfully"}

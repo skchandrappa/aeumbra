@@ -1,4 +1,4 @@
-import api from './api';
+import apiService from './apiService';
 import { User, RegisterData, TokenResponse, LoginResponse } from '../types';
 
 export interface AuthService {
@@ -15,20 +15,29 @@ export interface AuthService {
 
 const authService: AuthService = {
   async login(email: string, password: string): Promise<LoginResponse> {
-    const response = await api.post<{success: boolean, data: LoginResponse}>('/auth/login', {
+    const response = await apiService.post<{success: boolean, message: string, data: LoginResponse}>('/auth/login', {
       email,
       password,
     });
     
-    // Store tokens
-    localStorage.setItem('auth_token', response.data.data.access_token);
-    localStorage.setItem('refresh_token', response.data.data.refresh_token);
+    console.log('Login API response:', response);
     
-    return response.data.data;
+    // The backend returns {success: true, data: {access_token, refresh_token, user}}
+    const loginData = (response as any).data || response;
+    
+    // Store tokens
+    if (loginData.access_token) {
+      localStorage.setItem('auth_token', loginData.access_token);
+    }
+    if (loginData.refresh_token) {
+      localStorage.setItem('refresh_token', loginData.refresh_token);
+    }
+    
+    return loginData;
   },
 
   async register(userData: RegisterData): Promise<TokenResponse> {
-    const response = await api.post<{success: boolean, data: TokenResponse}>('/auth/register', {
+    const response = await apiService.post<TokenResponse>('/auth/register', {
       email: userData.email,
       password: userData.password,
       user_type: userData.user_type,
@@ -38,15 +47,15 @@ const authService: AuthService = {
     });
     
     // Store tokens
-    localStorage.setItem('auth_token', response.data.data.access_token);
-    localStorage.setItem('refresh_token', response.data.data.refresh_token);
+    localStorage.setItem('auth_token', response.access_token);
+    localStorage.setItem('refresh_token', response.refresh_token);
     
-    return response.data.data;
+    return response;
   },
 
   async logout(): Promise<void> {
     try {
-      await api.post('/auth/logout');
+      await apiService.post('/auth/logout');
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
@@ -56,49 +65,50 @@ const authService: AuthService = {
   },
 
   async refreshToken(refreshToken: string): Promise<TokenResponse> {
-    const response = await api.post<{success: boolean, data: TokenResponse}>('/auth/refresh', {
+    const response = await apiService.post<TokenResponse>('/auth/refresh', {
       refresh_token: refreshToken,
     });
     
     // Update stored tokens
-    localStorage.setItem('auth_token', response.data.data.access_token);
-    localStorage.setItem('refresh_token', response.data.data.refresh_token);
+    localStorage.setItem('auth_token', response.access_token);
+    localStorage.setItem('refresh_token', response.refresh_token);
     
-    return response.data.data;
+    return response;
   },
 
   async getCurrentUser(): Promise<User> {
-    const response = await api.get<{success: boolean, data: User}>('/auth/me');
-    return response.data.data;
+    const response = await apiService.get<{success: boolean, data: User}>('/auth/me');
+    console.log('GetCurrentUser API response:', response);
+    return (response as any).data;
   },
 
   async forgotPassword(email: string): Promise<{ message: string }> {
-    const response = await api.post<{success: boolean, message: string}>('/auth/forgot-password', {
+    const response = await apiService.post<{success: boolean, message: string}>('/auth/forgot-password', {
       email,
     });
-    return { message: response.data.message };
+    return { message: response.message };
   },
 
   async resetPassword(token: string, newPassword: string): Promise<{ message: string }> {
-    const response = await api.post<{success: boolean, message: string}>('/auth/reset-password', {
+    const response = await apiService.post<{success: boolean, message: string}>('/auth/reset-password', {
       token,
       new_password: newPassword,
     });
-    return { message: response.data.message };
+    return { message: response.message };
   },
 
   async verifyEmail(token: string): Promise<{ message: string }> {
-    const response = await api.post<{success: boolean, message: string}>('/auth/verify-email', {
+    const response = await apiService.post<{success: boolean, message: string}>('/auth/verify-email', {
       token,
     });
-    return { message: response.data.message };
+    return { message: response.message };
   },
 
   async resendVerification(email: string): Promise<{ message: string }> {
-    const response = await api.post<{success: boolean, message: string}>('/auth/resend-verification', {
+    const response = await apiService.post<{success: boolean, message: string}>('/auth/resend-verification', {
       email,
     });
-    return { message: response.data.message };
+    return { message: response.message };
   },
 };
 

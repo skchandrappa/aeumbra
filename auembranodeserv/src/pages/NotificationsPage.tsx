@@ -27,7 +27,7 @@ import {
   MoreVert,
   MarkAsUnread,
 } from '@mui/icons-material';
-import { useAuth } from '../contexts/AuthContext';
+// import { useAuth } from '../contexts/AuthContext';
 import Layout from '../components/Layout';
 import { useNotifications, useUnreadCount, useMarkAsRead, useMarkAllAsRead } from '../hooks/useNotifications';
 

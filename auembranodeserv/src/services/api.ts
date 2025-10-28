@@ -33,29 +33,29 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
+    // Handle 401 errors (token refresh)
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
-
-      try {
-        const refreshToken = localStorage.getItem('refresh_token');
-        if (refreshToken) {
+      
+      const refreshToken = localStorage.getItem('refresh_token');
+      if (refreshToken) {
+        try {
           const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {
-            refresh_token: refreshToken,
+            refresh_token: refreshToken
           });
-
-          const { access_token, refresh_token } = response.data.data;
+          
+          const { access_token } = response.data;
           localStorage.setItem('auth_token', access_token);
-          localStorage.setItem('refresh_token', refresh_token);
-
-          // Retry original request
+          
+          // Retry original request with new token
           originalRequest.headers.Authorization = `Bearer ${access_token}`;
           return api(originalRequest);
+        } catch (refreshError) {
+          // Refresh failed, redirect to login
+          localStorage.removeItem('auth_token');
+          localStorage.removeItem('refresh_token');
+          window.location.href = '/login';
         }
-      } catch (refreshError) {
-        // Refresh failed, redirect to login
-        localStorage.removeItem('auth_token');
-        localStorage.removeItem('refresh_token');
-        window.location.href = '/login';
       }
     }
 

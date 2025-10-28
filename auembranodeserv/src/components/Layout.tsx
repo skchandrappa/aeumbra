@@ -15,6 +15,7 @@ import {
   MenuItem,
   Badge,
 } from '@mui/material';
+// import DemoBanner from './DemoBanner'; // Removed demo banner
 import {
   // Menu as MenuIcon,
   Home,

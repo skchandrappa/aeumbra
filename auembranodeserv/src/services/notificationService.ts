@@ -1,4 +1,4 @@
-import api from './api';
+import apiService from './apiService';
 import { Notification } from '../types';
 
 export interface NotificationService {
@@ -16,25 +16,25 @@ const notificationService: NotificationService = {
       limit: limit.toString(),
     });
     
-    const response = await api.get<Notification[]>(`/notifications?${params.toString()}`);
-    return response.data;
+    const response = await apiService.get<Notification[]>(`/notifications?${params.toString()}`);
+    return response;
   },
 
   async getUnreadCount(): Promise<{ count: number }> {
-    const response = await api.get<{ count: number }>('/notifications/unread-count');
-    return response.data;
+    const response = await apiService.get<{ count: number }>('/notifications/unread-count');
+    return response;
   },
 
   async markAsRead(notificationId: string): Promise<void> {
-    await api.post(`/notifications/${notificationId}/mark-read`);
+    await apiService.post(`/notifications/${notificationId}/mark-read`);
   },
 
   async markAllAsRead(): Promise<void> {
-    await api.post('/notifications/mark-read');
+    await apiService.post('/notifications/mark-read');
   },
 
   async deleteNotification(notificationId: string): Promise<void> {
-    await api.delete(`/notifications/${notificationId}`);
+    await apiService.delete(`/notifications/${notificationId}`);
   },
 };
 

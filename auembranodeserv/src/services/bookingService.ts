@@ -1,4 +1,4 @@
-import api from './api';
+import apiService from './apiService';
 import { Booking } from '../types';
 
 export interface BookingCreate {
@@ -44,46 +44,46 @@ const bookingService: BookingService = {
     
     if (status) params.append('status', status);
     
-    const response = await api.get<Booking[]>(`/bookings?${params.toString()}`);
-    return response.data;
+    const response = await apiService.get<Booking[]>(`/bookings?${params.toString()}`);
+    return response;
   },
 
   async createBooking(bookingData: BookingCreate): Promise<Booking> {
-    const response = await api.post<Booking>('/bookings', bookingData);
-    return response.data;
+    const response = await apiService.post<Booking>('/bookings', bookingData);
+    return response;
   },
 
   async getBooking(bookingId: string): Promise<Booking> {
-    const response = await api.get<Booking>(`/bookings/${bookingId}`);
-    return response.data;
+    const response = await apiService.get<Booking>(`/bookings/${bookingId}`);
+    return response;
   },
 
   async updateBooking(bookingId: string, bookingData: BookingUpdate): Promise<Booking> {
-    const response = await api.put<Booking>(`/bookings/${bookingId}`, bookingData);
-    return response.data;
+    const response = await apiService.put<Booking>(`/bookings/${bookingId}`, bookingData);
+    return response;
   },
 
   async deleteBooking(bookingId: string): Promise<void> {
-    await api.delete(`/bookings/${bookingId}`);
+    await apiService.delete(`/bookings/${bookingId}`);
   },
 
   async confirmBooking(bookingId: string): Promise<Booking> {
-    const response = await api.post<Booking>(`/bookings/${bookingId}/confirm`);
-    return response.data;
+    const response = await apiService.post<Booking>(`/bookings/${bookingId}/confirm`);
+    return response;
   },
 
   async cancelBooking(bookingId: string, reason?: string): Promise<Booking> {
-    const response = await api.post<Booking>(`/bookings/${bookingId}/cancel`, {
+    const response = await apiService.post<Booking>(`/bookings/${bookingId}/cancel`, {
       reason,
     });
-    return response.data;
+    return response;
   },
 
   async completeBooking(bookingId: string, notes?: string): Promise<Booking> {
-    const response = await api.post<Booking>(`/bookings/${bookingId}/complete`, {
+    const response = await apiService.post<Booking>(`/bookings/${bookingId}/complete`, {
       notes,
     });
-    return response.data;
+    return response;
   },
 };
 

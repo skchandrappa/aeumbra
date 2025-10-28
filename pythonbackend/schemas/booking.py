@@ -48,7 +48,7 @@ class BookingResponse(BaseModel):
     cancellation_reason: Optional[str]
     
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 
 class BookingCreate(BaseModel):

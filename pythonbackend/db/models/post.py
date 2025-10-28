@@ -5,16 +5,16 @@ Social post models
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, DECIMAL, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-from db.base import BaseModel
+from db.base import BaseModel, Base
 
 
 class Post(BaseModel):
     """Social media posts"""
     __tablename__ = "posts"
     
-    user_id = Column(Integer, nullable=False, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     content = Column(Text)
-    post_type = Column(String(20), default="text")  # text, image, video, carousel
+    post_type = Column(String(20), default="text")  # text, image, video, carousel, advertisement
     location_name = Column(String(255))
     latitude = Column(DECIMAL(10, 8))
     longitude = Column(DECIMAL(11, 8))
@@ -45,11 +45,14 @@ class Post(BaseModel):
         return f"<Post(id={self.id}, user_id={self.user_id}, type={self.post_type})>"
 
 
-class PostMedia(BaseModel):
+class PostMedia(Base):
     """Media attachments for posts"""
     __tablename__ = "post_media"
     
-    post_id = Column(Integer, nullable=False, index=True)
+    id = Column(Integer, primary_key=True, index=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+    post_id = Column(Integer, ForeignKey("posts.id"), nullable=False, index=True)
     media_url = Column(Text, nullable=False)
     media_type = Column(String(20), nullable=False)  # image, video
     thumbnail_url = Column(Text)
@@ -70,8 +73,8 @@ class PostLike(BaseModel):
     """Post likes"""
     __tablename__ = "post_likes"
     
-    post_id = Column(Integer, nullable=False, index=True)
-    user_id = Column(Integer, nullable=False, index=True)
+    post_id = Column(Integer, ForeignKey("posts.id"), nullable=False, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     
     # Relationships
     post = relationship("Post", back_populates="likes")
@@ -88,9 +91,9 @@ class PostComment(BaseModel):
     """Post comments"""
     __tablename__ = "post_comments"
     
-    post_id = Column(Integer, nullable=False, index=True)
-    user_id = Column(Integer, nullable=False, index=True)
-    parent_comment_id = Column(Integer, index=True)  # For replies
+    post_id = Column(Integer, ForeignKey("posts.id"), nullable=False, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    parent_comment_id = Column(Integer, ForeignKey("post_comments.id"), index=True)  # For replies
     content = Column(Text, nullable=False)
     is_edited = Column(Boolean, default=False)
     edited_at = Column(DateTime(timezone=True))
@@ -111,8 +114,8 @@ class CommentLike(BaseModel):
     """Comment likes"""
     __tablename__ = "comment_likes"
     
-    comment_id = Column(Integer, nullable=False, index=True)
-    user_id = Column(Integer, nullable=False, index=True)
+    comment_id = Column(Integer, ForeignKey("post_comments.id"), nullable=False, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     
     # Relationships
     comment = relationship("PostComment", back_populates="likes")
@@ -129,8 +132,8 @@ class UserFollow(BaseModel):
     """User follow relationships"""
     __tablename__ = "user_follows"
     
-    follower_id = Column(Integer, nullable=False, index=True)
-    following_id = Column(Integer, nullable=False, index=True)
+    follower_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    following_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     
     # Relationships
     follower = relationship("User", back_populates="follower_relationships", foreign_keys=[follower_id])

@@ -63,11 +63,15 @@ app.add_middleware(
         "http://localhost:3000", 
         "http://127.0.0.1:3000", 
         "http://localhost:3001",
-        # Allow all Tailscale IPs dynamically
+        # Production frontend URLs - add your Vercel/Netlify URL here
+        "https://your-app.vercel.app",
+        # Render frontend URLs - update with your actual URL
+        "https://aeumbra-frontend.onrender.com",
+        # Allow all origins in development
         "*"
     ],
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=["*"],
 )
 
@@ -156,10 +160,12 @@ if os.path.exists("uploads"):
 
 
 if __name__ == "__main__":
+    import os
+    port = int(os.environ.get("PORT", 8000))
     uvicorn.run(
         "main:app",
         host="0.0.0.0",
-        port=8000,
+        port=port,
         reload=settings.ENVIRONMENT == "development",
         log_level="info"
     )

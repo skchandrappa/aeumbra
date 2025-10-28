@@ -61,7 +61,7 @@ import { usePosts, useCreatePost, useLikePost, useUnlikePost, useCreateComment }
 
 const FeedPage: React.FC = () => {
   const { user } = useAuth();
-  const { data: posts = [] } = usePosts();
+  const { data: posts = [], isLoading, error } = usePosts();
   const createPostMutation = useCreatePost();
   const likePostMutation = useLikePost();
   const unlikePostMutation = useUnlikePost();
@@ -161,6 +161,7 @@ const FeedPage: React.FC = () => {
   return (
     <Layout>
       <Box>
+        <>
         <Typography variant="h4" gutterBottom>
           {isGuard ? 'Security Community Feed' : 'Security Services Feed'}
         </Typography>
@@ -170,8 +171,42 @@ const FeedPage: React.FC = () => {
             : 'Discover security services and connect with professionals'}
         </Typography>
 
+        {/* Loading State */}
+        {isLoading && (
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+            <LinearProgress sx={{ width: '100%' }} />
+          </Box>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <Box sx={{ textAlign: 'center', py: 4 }}>
+            <Typography variant="h6" color="error" gutterBottom>
+              Failed to load posts
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Please try refreshing the page
+            </Typography>
+          </Box>
+        )}
+
+        {/* Empty State */}
+        {!isLoading && !error && (!posts || !Array.isArray(posts) || posts.length === 0) && (
+          <Box sx={{ textAlign: 'center', py: 4 }}>
+            <Typography variant="h6" gutterBottom>
+              No posts yet
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {isGuard 
+                ? 'Be the first to share a work update!' 
+                : 'No security services available at the moment'
+              }
+            </Typography>
+          </Box>
+        )}
+
         {/* Posts */}
-        {posts.map((post) => (
+        {!isLoading && !error && posts && Array.isArray(posts) && posts.map((post) => (
           <Card 
             key={post.id} 
             sx={{ 
@@ -205,11 +240,14 @@ const FeedPage: React.FC = () => {
               <Box display="flex" alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
                 <Box display="flex" alignItems="center">
                   <Avatar sx={{ mr: 2 }}>
-                    {post.user.first_name[0]}
+                    {post.user.first_name?.[0] || 'U'}
                   </Avatar>
                   <Box>
                     <Typography variant="subtitle1" fontWeight="bold">
-                      {post.user.first_name} {post.user.last_name}
+                      {post.user.first_name && post.user.last_name 
+                        ? `${post.user.first_name} ${post.user.last_name}`
+                        : post.user.first_name || 'Unknown User'
+                      }
                     </Typography>
                     <Box display="flex" alignItems="center" gap={1}>
                       <Typography variant="body2" color="text.secondary">
@@ -489,6 +527,7 @@ const FeedPage: React.FC = () => {
             </Button>
           </DialogActions>
         </Dialog>
+        </>
       </Box>
     </Layout>
   );
