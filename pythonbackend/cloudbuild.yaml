@@ -1,0 +1,36 @@
+steps:
+  # Build the Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'build',
+      '-t', 'gcr.io/$PROJECT_ID/aeumbra-backend:$SHORT_SHA',
+      '-t', 'gcr.io/$PROJECT_ID/aeumbra-backend:latest',
+      '.'
+    ]
+
+  # Push the Docker image to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/aeumbra-backend:latest']
+
+  # Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'aeumbra-backend'
+      - '--image=gcr.io/$PROJECT_ID/aeumbra-backend:$SHORT_SHA'
+      - '--region=us-central1'
+      - '--platform=managed'
+      - '--allow-unauthenticated'
+      - '--port=8000'
+      - '--memory=512Mi'
+      - '--cpu=1'
+      - '--timeout=300'
+      - '--max-instances=10'
+      - '--set-env-vars=ENVIRONMENT=production'
+
+images:
+  - 'gcr.io/$PROJECT_ID/aeumbra-backend:$SHORT_SHA'
+  - 'gcr.io/$PROJECT_ID/aeumbra-backend:latest'
+
