@@ -55,9 +55,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   // Use MobileLayout for mobile devices
-  if (isMobile) {
-    return <MobileLayout>{children}</MobileLayout>;
-  }
+  // if (isMobile) {
+  //   return <MobileLayout>{children}</MobileLayout>;
+  // }
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
