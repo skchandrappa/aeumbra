@@ -80,8 +80,7 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:3000", 
         "http://127.0.0.1:3000",
-        "https://68fac68582a515d02b55d4ed--sparkling-pika-64b5bf.netlify.app", # Netlify
-        "https://aeumbra-frontend.onrender.com", # New Render frontend
+        "https://aeumbra-frontend.onrender.com", # Render frontend
         "https://your-render-url.onrender.com", # Your actual Render URL
         "*"
     ],
@@ -148,20 +147,5 @@ After deployment, you'll have:
 
 ---
 
-## Alternative: Keep Netlify
-
-If Netlify is working well for you, you can:
-1. Keep Netlify for frontend (already deployed)
-2. Keep Render for backend only
-3. Just update the timeout as we did
-
-This gives you:
-- Netlify: Fast CDN for frontend
-- Render: Backend API
-
-Both are free tier options.
-
----
-
-**Last Updated**: October 28, 2025
+**Last Updated**: October 29, 2025
 

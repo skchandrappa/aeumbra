@@ -63,9 +63,6 @@ app.add_middleware(
         "http://localhost:3000", 
         "http://127.0.0.1:3000", 
         "http://localhost:3001",
-        # Netlify deployment URL
-        "https://sparkling-pika-64b5bf.netlify.app",
-        "https://68fac68582a515d02b55d4ed--sparkling-pika-64b5bf.netlify.app",
         # Production frontend URLs - add your Vercel URL here
         "https://your-app.vercel.app",
         # Render frontend URLs
