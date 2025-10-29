@@ -186,7 +186,7 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({ children }) => {
           zIndex: theme.zIndex.drawer + 1,
         }}
       >
-        <Toolbar sx={{ justifyContent: 'space-between' }}>
+        <Toolbar sx={{ justifyContent: 'space-between', gap: 1 }}>
           {/* Logo */}
           <Box
             component="img"
@@ -200,6 +200,20 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({ children }) => {
           
           {/* Top Right Actions */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            {/* User ID (compact) */}
+            {user && (
+              <Box sx={{ mr: 0.5, display: 'flex', alignItems: 'center' }}>
+                <Box
+                  component="span"
+                  sx={{
+                    fontSize: '0.75rem',
+                    color: 'rgba(255,255,255,0.8)'
+                  }}
+                >
+                  ID: {user.id}
+                </Box>
+              </Box>
+            )}
             {/* Notifications */}
             <IconButton
               color="inherit"
@@ -214,23 +228,39 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({ children }) => {
                 <Notifications />
               )}
             </IconButton>
-            
-            {/* Profile Menu */}
+            {/* Settings */}
             <IconButton
               color="inherit"
-              onClick={handleProfileMenuOpen}
+              onClick={() => navigate('/settings')}
+              sx={{ p: 1 }}
+            >
+              <Settings />
+            </IconButton>
+            {/* Profile */}
+            <IconButton
+              color="inherit"
+              onClick={() => navigate('/profile')}
               sx={{ p: 0.5 }}
             >
               <Avatar 
                 sx={{ 
-                  width: 32, 
-                  height: 32,
+                  width: 28, 
+                  height: 28,
                   backgroundColor: 'rgba(255, 255, 255, 0.2)',
                   color: 'white',
                 }}
               >
                 {user?.profile?.first_name?.[0] || user?.email?.[0] || 'U'}
               </Avatar>
+            </IconButton>
+            {/* Logout */}
+            <IconButton
+              color="inherit"
+              onClick={handleLogout}
+              sx={{ p: 1 }}
+              aria-label="logout"
+            >
+              <Logout />
             </IconButton>
           </Box>
         </Toolbar>
