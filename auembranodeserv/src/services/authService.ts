@@ -33,11 +33,21 @@ const authService: AuthService = {
       localStorage.setItem('refresh_token', loginData.refresh_token);
     }
     
+    // Ensure we have the current user details; some backends do not include user in login response
+    try {
+      if (!loginData.user) {
+        const meResp = await apiService.get<{success: boolean, data: User}>('/auth/me');
+        (loginData as any).user = (meResp as any).data;
+      }
+    } catch (e) {
+      console.warn('Fetching current user after login failed:', e);
+    }
+    
     return loginData;
   },
 
   async register(userData: RegisterData): Promise<TokenResponse> {
-    const response = await apiService.post<TokenResponse>('/auth/register', {
+    const response = await apiService.post<{success: boolean, data: TokenResponse}>('/auth/register', {
       email: userData.email,
       password: userData.password,
       user_type: userData.user_type,
@@ -46,11 +56,17 @@ const authService: AuthService = {
       phone_number: userData.phone,
     });
     
-    // Store tokens
-    localStorage.setItem('auth_token', response.access_token);
-    localStorage.setItem('refresh_token', response.refresh_token);
+    const tokenData = (response as any).data || response;
     
-    return response;
+    // Store tokens
+    if (tokenData.access_token) {
+      localStorage.setItem('auth_token', tokenData.access_token);
+    }
+    if (tokenData.refresh_token) {
+      localStorage.setItem('refresh_token', tokenData.refresh_token);
+    }
+    
+    return tokenData;
   },
 
   async logout(): Promise<void> {
@@ -65,15 +81,21 @@ const authService: AuthService = {
   },
 
   async refreshToken(refreshToken: string): Promise<TokenResponse> {
-    const response = await apiService.post<TokenResponse>('/auth/refresh', {
+    const response = await apiService.post<{success: boolean, data: TokenResponse}>('/auth/refresh', {
       refresh_token: refreshToken,
     });
     
-    // Update stored tokens
-    localStorage.setItem('auth_token', response.access_token);
-    localStorage.setItem('refresh_token', response.refresh_token);
+    const tokenData = (response as any).data || response;
     
-    return response;
+    // Update stored tokens
+    if (tokenData.access_token) {
+      localStorage.setItem('auth_token', tokenData.access_token);
+    }
+    if (tokenData.refresh_token) {
+      localStorage.setItem('refresh_token', tokenData.refresh_token);
+    }
+    
+    return tokenData;
   },
 
   async getCurrentUser(): Promise<User> {

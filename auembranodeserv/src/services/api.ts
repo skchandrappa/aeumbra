@@ -44,7 +44,7 @@ api.interceptors.response.use(
             refresh_token: refreshToken
           });
           
-          const { access_token } = response.data;
+          const access_token = response.data?.data?.access_token || response.data?.access_token;
           localStorage.setItem('auth_token', access_token);
           
           // Retry original request with new token
