@@ -14,6 +14,8 @@ import {
   Menu,
   MenuItem,
   Badge,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 // import DemoBanner from './DemoBanner'; // Removed demo banner
 import {
@@ -34,6 +36,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useUnreadCount } from '../hooks/useNotifications';
 import { UnreadCountData } from '../types';
+import MobileLayout from './MobileLayout';
 
 const drawerWidth = 240;
 
@@ -48,6 +51,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
   const { user, logout } = useAuth();
   const { data: unreadCountData = { unread_count: 0 } } = useUnreadCount() as { data: UnreadCountData | undefined };
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
+  // Use MobileLayout for mobile devices
+  if (isMobile) {
+    return <MobileLayout>{children}</MobileLayout>;
+  }
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
