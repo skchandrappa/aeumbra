@@ -36,7 +36,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useUnreadCount } from '../hooks/useNotifications';
 import { UnreadCountData } from '../types';
-import MobileLayout from '../components/MobileLayout';
+import MobileLayout from './MobileLayout';
 
 const drawerWidth = 240;
 
